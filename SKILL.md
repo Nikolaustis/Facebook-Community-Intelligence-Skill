@@ -1,10 +1,10 @@
 ---
 name: facebook-group-monitor
-version: 7.0.0
-description: Two-stage Facebook game-group monitoring with an explicit Phase 1.5 name-relevance queue prefilter, source-query and expanded-query evidence, safe short-alias boundaries, sibling-title suppression, durable recovery, verified Windows startup, multi-game output, semantic region adjudication, and prompt-driven shutdown.
+version: 7.0.1
+description: Two-stage Facebook game-group monitoring with resilient first-round extraction, dual-route false-zero recovery, explicit Phase 1.5 name-relevance queue prefilter, source-query and expanded-query evidence, safe short-alias boundaries, sibling-title suppression, durable recovery, verified Windows startup, multi-game output, semantic region adjudication, and prompt-driven shutdown.
 ---
 
-# Facebook Group Monitor V7.0.0
+# Facebook Group Monitor V7.0.1
 
 ## Operating sequence
 
@@ -26,6 +26,14 @@ description: Two-stage Facebook game-group monitoring with an explicit Phase 1.5
 8. Save a complete checkpoint after every phase-2 candidate.
 9. Generate aligned `detail` and `manual_review` sheets using the authoritative field order.
 10. Close Chrome after verified finalization. Default to no shutdown; use only the current run's explicit shutdown instruction.
+
+## Mandatory Phase 1 high-recall and false-zero rule
+
+Phase 1 must collect canonical group URLs returned by Facebook without using query-token presence as a hard rejection. It must extract a candidate name from same-URL link text, headings, accessibility labels, title attributes, or nearby card lines, and preserve the extraction source as audit metadata.
+
+When the primary search surface contains no actual group links, retry the alternate Facebook Groups search surface once. Search readiness must be based on an actual group link or terminal page signal, not a fixed sleep alone. Scroll both the document and the largest nested scroll container.
+
+Any query that still ends at zero must create `phase1_diagnostics/*.json`, `*.html`, and `*.png`. Distinguish login/checkpoint, temporary Facebook error, explicit no-results text, raw group links present, and unresolved zero after route fallback. Never report an unresolved extractor zero merely as “no groups found.”
 
 ## Mandatory Phase 1.5 rule
 

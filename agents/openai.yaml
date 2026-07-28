@@ -1,4 +1,4 @@
 interface:
-  display_name: Facebook Group Monitor V7.0.0
-  short_description: Facebook game-group monitor with Phase 1.5 queue prefilter
-  default_prompt: 按 V7.0.0 流程运行 Facebook 群组监测。第二轮打开页面前必须先执行 Phase 1.5 全量群名预筛并生成缩减队列与审计文件；检索词、扩展检索词、标题、别名和兄弟标题共同参与判定。短拉丁别名必须使用完整词边界，不能以子串方式命中更长单词或编号续接；兄弟排斥必须包含兄弟游戏本名、别名和配置变体。多个明确国家若属于同一业务区域，应直接保留该区域并标记 same_business_region。最终明细以 group_url + game_name 为唯一键，多游戏群组分别保留。任务启动必须隔离 supervisor 与 child 日志；关机前使用 Node verifier 严格校验，默认完成后不关机。语义顺序为自定义 API、已验证 Codex CLI、本地规则与受控 GeoNames。
+  display_name: Facebook Group Monitor V7.0.1
+  short_description: Facebook game-group monitor with resilient Phase 1 and Phase 1.5 prefilter
+  default_prompt: 按 V7.0.1 流程运行 Facebook 群组监测。第一轮必须采用高召回链接采集：不得因卡片文字缺少检索词而直接丢弃，主检索路由无群组链接时切换备用路由，最终为零时必须保存 JSON、HTML 与截图诊断。第二轮打开页面前必须先执行 Phase 1.5 全量群名预筛并生成缩减队列与审计文件；检索词、扩展检索词、标题、别名和兄弟标题共同参与判定。短拉丁别名必须使用完整词边界，不能以子串方式命中更长单词或编号续接；兄弟排斥必须包含兄弟游戏本名、别名和配置变体。多个明确国家若属于同一业务区域，应直接保留该区域并标记 same_business_region。最终明细以 group_url + game_name 为唯一键，多游戏群组分别保留。任务启动必须隔离 supervisor 与 child 日志；关机前使用 Node verifier 严格校验，默认完成后不关机。语义顺序为自定义 API、已验证 Codex CLI、本地规则与受控 GeoNames。

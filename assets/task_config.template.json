@@ -650,5 +650,7 @@
     "retry_backoff_ms": 1500
   },
   "shutdown_before": "",
-  "shutdown_mode": "none"
+  "shutdown_mode": "none",
+  "phase1_results_ready_timeout_ms": 25000,
+  "phase1_zero_result_diagnostics": true
 }

@@ -1,7 +1,7 @@
 {
-  "name": "fb-group-monitor-skill-v7-0-0",
-  "version": "7.0.0",
-  "description": "Two-stage Facebook game-group monitor with an explicit Phase 1.5 name-relevance queue prefilter, safe short-alias boundaries, sibling-title suppression, source-query auditing, durable recovery, and verified Windows execution.",
+  "name": "fb-group-monitor-skill-v7-0-1",
+  "version": "7.0.1",
+  "description": "Two-stage Facebook game-group monitor with resilient Phase 1 DOM extraction, dual search-route recovery, zero-result diagnostics, Phase 1.5 name-relevance queue prefilter, and durable Windows execution.",
   "private": true,
   "scripts": {
     "login": "powershell -ExecutionPolicy Bypass -File .\\scripts\\open_chrome_9222.ps1",
@@ -27,7 +27,8 @@
     "semantic:clear-legacy-codex-env": "powershell -ExecutionPolicy Bypass -File .\\scripts\\clear_legacy_codex_cli_path.ps1",
     "phase2:verify-shutdown": "node .\\scripts\\verify_shutdown_state.js",
     "phase15": "node ./scripts/phase15_prefilter_candidates.js",
-    "phase15:test": "node ./tests/test_phase15_name_prefilter.js"
+    "phase15:test": "node ./tests/test_phase15_name_prefilter.js",
+    "phase1:test": "node ./tests/test_phase1_recovery_static.js"
   },
   "dependencies": {
     "playwright": "^1.59.1",

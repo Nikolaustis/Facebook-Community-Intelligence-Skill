@@ -1,3 +1,17 @@
+# V7.0.1 Patch Notes
+
+- Fixed false-zero Phase 1 runs where manual Facebook search showed groups but `collectRound()` returned none.
+- Replaced the single-node `a.innerText` title assumption with canonical-URL grouping and multi-source name extraction.
+- Removed Phase 1 hard rejection based on query-token presence; token matching is now stored as `phase1_query_token_match` for audit.
+- Added a real result-readiness wait and alternate Facebook Groups search-route recovery.
+- Added nested-scroll-container scrolling in addition to document scrolling.
+- Added explicit `LOGIN_OR_CHECKPOINT_SIGNAL`, `FACEBOOK_TEMPORARY_ERROR`, and `ZERO_CANDIDATES_AFTER_ROUTE_FALLBACK` stop reasons.
+- Added per-round `raw_group_link_count`, selected search URL, route-fallback, and page-signal fields.
+- Added automatic zero-result JSON, HTML, and screenshot diagnostics under `phase1_diagnostics/`.
+- Preserved V7.0.0 Phase 1.5 filtering, title boundaries, sibling suppression, checkpointing, semantic resolution, XLSX schema, and shutdown controls.
+
+---
+
 # V7.0.0 Patch Notes
 
 - Added an explicit offline **Phase 1.5 group-name prefilter** before phase-2 Facebook page collection.

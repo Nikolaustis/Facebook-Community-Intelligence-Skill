@@ -224,26 +224,131 @@ async function collectRound(page, gameName, sourceQuery, variantType) {
   const queryTokens = Array.from(new Set([...meaningfulTokens(gameName), ...meaningfulTokens(sourceQuery)]));
   return page.evaluate(({ queryTokens, sourceQuery, variantType, gameName }) => {
     const main = document.querySelector('div[role="main"]') || document.body;
+    const cleanText = (s) => (s || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+    const normalize = (s) => cleanText(s).toLowerCase().replace(/[^a-z0-9]+/g, ' ');
+    const memberSignal = /members?|位成员|位成員|成員|成员|thành viên|สมาชิก|anggota|membros?|miembros?|membres?|mitglieder|участник|member/i;
+    const uiOnlySignal = /^(join|joined|invite|share|visit|view group|see all|public group|private group|visible|hidden|加入|已加入|邀请|邀請|分享|查看小组|查看社团|公開社團|私人社團|公开小组|私密小组)$/i;
     const out = [];
-    const anchors = Array.from(main.querySelectorAll('a[href*="/groups/"]'));
-    const normalize = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ');
-    for (const a of anchors) {
-      const href = a.href || '';
-      if (!/facebook\.com\/groups\//i.test(href)) continue;
-      if (/posts|permalink|media_set|search\//i.test(href)) continue;
-      const groupName = (a.innerText || '').replace(/\s+/g, ' ').trim();
-      if (!groupName || groupName.length < 2) continue;
-      const card =
-        a.closest('div[role="article"], div[role="listitem"], div.x1n2onr6, div.x1yztbdb') ||
-        a.parentElement;
-      const snippet = (card?.innerText || '').replace(/\s+/g, ' ').trim();
-      const combined = normalize(`${groupName} ${snippet}`);
-      if (queryTokens.length && !queryTokens.some((tk) => combined.includes(tk))) continue;
-      const looksLikeGroupCard = /members?|位成员|thành viên|สมาชิก/i.test(snippet) || groupName.length >= 2;
-      if (!looksLikeGroupCard) continue;
+
+    const canonicalGroupUrl = (rawHref) => {
+      try {
+        const u = new URL(rawHref || '', location.href);
+        if (!/(^|\.)facebook\.com$/i.test(u.hostname)) return '';
+        const m = u.pathname.match(/^\/groups\/([^/?#]+)/i);
+        if (!m) return '';
+        const id = decodeURIComponent(m[1] || '').trim();
+        if (!id || /^(search|discover|feed|joins|create|notifications)$/i.test(id)) return '';
+        return `https://www.facebook.com/groups/${encodeURIComponent(id).replace(/%2F/gi, '/')}`;
+      } catch (_e) {
+        return '';
+      }
+    };
+
+    const findCard = (node) => {
+      let cur = node;
+      let best = node?.parentElement || null;
+      for (let i = 0; i < 12 && cur && cur !== main.parentElement; i++) {
+        const role = cleanText(cur.getAttribute?.('role'));
+        const text = cleanText(cur.innerText || cur.textContent || '');
+        if (role === 'article' || role === 'listitem') return cur;
+        if (text.length >= 12 && text.length <= 5000 && memberSignal.test(text)) best = cur;
+        cur = cur.parentElement;
+      }
+      return best || node?.parentElement || main;
+    };
+
+    const addCandidate = (list, text, source) => {
+      const value = cleanText(text);
+      if (!value || value.length < 2 || value.length > 220) return;
+      if (/^https?:\/\//i.test(value) || uiOnlySignal.test(value)) return;
+      list.push({ value, source });
+    };
+
+    const scoreCandidate = (candidate) => {
+      const value = candidate.value;
+      const normalized = normalize(value);
+      let score = 0;
+      if (candidate.source === 'same_url_anchor_text') score += 90;
+      else if (candidate.source === 'heading') score += 80;
+      else if (candidate.source === 'anchor_text') score += 70;
+      else if (candidate.source === 'aria_label') score += 58;
+      else if (candidate.source === 'title_attribute') score += 50;
+      else if (candidate.source === 'card_line') score += 20;
+      if (queryTokens.some((tk) => normalized.includes(tk))) score += 35;
+      if (value.length >= 4 && value.length <= 120) score += 12;
+      if (value.split(/\s+/).length >= 2) score += 5;
+      if (memberSignal.test(value)) score -= 70;
+      if (/\b(join|joined|invite|share|members?|public|private)\b/i.test(value)) score -= 25;
+      if (/^[0-9.,]+$/.test(value)) score -= 100;
+      return score;
+    };
+
+    const linkNodes = Array.from(main.querySelectorAll('a[href], [role="link"][href]'));
+    const grouped = new Map();
+    for (const node of linkNodes) {
+      const href = node.href || node.getAttribute('href') || '';
+      const groupUrl = canonicalGroupUrl(href);
+      if (!groupUrl) continue;
+      if (!grouped.has(groupUrl)) grouped.set(groupUrl, { groupUrl, nodes: [], cards: [] });
+      const row = grouped.get(groupUrl);
+      row.nodes.push(node);
+      const card = findCard(node);
+      if (card && !row.cards.includes(card)) row.cards.push(card);
+    }
+
+    for (const row of grouped.values()) {
+      const nameCandidates = [];
+      let snippet = '';
+
+      for (const node of row.nodes) {
+        addCandidate(nameCandidates, node.innerText || node.textContent, 'anchor_text');
+        addCandidate(nameCandidates, node.getAttribute?.('aria-label'), 'aria_label');
+        addCandidate(nameCandidates, node.getAttribute?.('title'), 'title_attribute');
+      }
+
+      for (const card of row.cards) {
+        const cardText = cleanText(card.innerText || card.textContent || '');
+        if (cardText.length > snippet.length) snippet = cardText;
+
+        for (const heading of Array.from(card.querySelectorAll('h1,h2,h3,h4,[role="heading"]')).slice(0, 12)) {
+          addCandidate(nameCandidates, heading.innerText || heading.textContent, 'heading');
+        }
+
+        for (const sameLink of Array.from(card.querySelectorAll('a[href], [role="link"][href]')).slice(0, 40)) {
+          const sameUrl = canonicalGroupUrl(sameLink.href || sameLink.getAttribute('href') || '');
+          if (sameUrl === row.groupUrl) {
+            addCandidate(nameCandidates, sameLink.innerText || sameLink.textContent, 'same_url_anchor_text');
+            addCandidate(nameCandidates, sameLink.getAttribute?.('aria-label'), 'aria_label');
+          }
+        }
+
+        const lines = (card.innerText || card.textContent || '')
+          .split(/\r?\n/)
+          .map(cleanText)
+          .filter(Boolean)
+          .slice(0, 24);
+        for (const line of lines) addCandidate(nameCandidates, line, 'card_line');
+      }
+
+      const deduped = [];
+      const seen = new Set();
+      for (const candidate of nameCandidates) {
+        const key = normalize(candidate.value);
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        deduped.push(candidate);
+      }
+      deduped.sort((a, b) => scoreCandidate(b) - scoreCandidate(a) || a.value.length - b.value.length);
+      const bestName = deduped[0] || { value: '', source: 'missing' };
+      const combined = normalize(`${bestName.value} ${snippet}`);
+      const queryTokenMatch = queryTokens.length === 0 || queryTokens.some((tk) => combined.includes(tk));
+
+      // Phase 1 is a high-recall discovery stage. Do not discard a Facebook-returned
+      // group merely because its visible card text omits the query token. V7 Phase 1.5
+      // and the Phase 2 title adjudicator perform the relevance decision later.
       out.push({
-        group_name: groupName,
-        group_url: href.split('?')[0].replace(/\/+$/, ''),
+        group_name: bestName.value,
+        group_url: row.groupUrl,
         snippet,
         source_game_name: gameName,
         source_query: sourceQuery,
@@ -251,10 +356,122 @@ async function collectRound(page, gameName, sourceQuery, variantType) {
         source_is_seed_url: false,
         source_queries: [sourceQuery],
         query_variant_types: [variantType],
+        phase1_query_token_match: queryTokenMatch,
+        phase1_name_source: bestName.source,
+        phase1_group_link_count: row.nodes.length,
       });
     }
     return out;
   }, { queryTokens, sourceQuery, variantType, gameName });
+}
+
+async function probeSearchPage(page) {
+  return page.evaluate(() => {
+    const main = document.querySelector('div[role="main"]') || document.body;
+    const cleanText = (s) => (s || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+    const bodyText = cleanText(document.body?.innerText || '');
+    const nodes = Array.from(main.querySelectorAll('a[href], [role="link"][href]'));
+    const groupNodes = nodes.filter((node) => /\/groups\/(?!search(?:[/?#]|$)|discover(?:[/?#]|$)|feed(?:[/?#]|$)|joins(?:[/?#]|$)|create(?:[/?#]|$)|notifications(?:[/?#]|$))[^/?#]+/i.test(node.href || node.getAttribute('href') || ''));
+    return {
+      url: location.href,
+      title: document.title,
+      ready_state: document.readyState,
+      main_found: Boolean(document.querySelector('div[role="main"]')),
+      all_link_count: nodes.length,
+      group_link_count: groupNodes.length,
+      body_text_length: bodyText.length,
+      body_text_excerpt: bodyText.slice(0, 12000),
+      login_or_checkpoint_signal: /\/login|\/checkpoint/i.test(location.href) || /log in to facebook|登录 facebook|登入 facebook|安全检查|security check/i.test(bodyText),
+      temporary_error_signal: /something went wrong|出现错误|发生错误|temporarily blocked|暂时无法|try again later/i.test(bodyText),
+      no_results_signal: /没有搜索到结果|沒有搜尋到結果|no results|couldn't find any results|找不到任何结果/i.test(bodyText),
+      samples: groupNodes.slice(0, 20).map((node) => ({
+        href: node.href || node.getAttribute('href') || '',
+        text: cleanText(node.innerText || node.textContent || '').slice(0, 300),
+        aria_label: cleanText(node.getAttribute?.('aria-label') || '').slice(0, 300),
+        parent_text: cleanText(node.parentElement?.innerText || node.parentElement?.textContent || '').slice(0, 500),
+      })),
+    };
+  });
+}
+
+async function waitForSearchResultsReady(page, timeoutMs = 25000) {
+  try {
+    await page.waitForFunction(() => {
+      const bodyText = (document.body?.innerText || '').replace(/\s+/g, ' ');
+      const main = document.querySelector('div[role="main"]') || document.body;
+      const hasGroupLink = Array.from(main?.querySelectorAll('a[href*="/groups/"], [role="link"][href*="/groups/"]') || []).some((node) => /\/groups\/(?!search(?:[/?#]|$)|discover(?:[/?#]|$)|feed(?:[/?#]|$)|joins(?:[/?#]|$)|create(?:[/?#]|$)|notifications(?:[/?#]|$))[^/?#]+/i.test(node.href || node.getAttribute('href') || ''));
+      const terminalText = /没有搜索到结果|沒有搜尋到結果|no results|couldn't find any results|something went wrong|出现错误|发生错误|登录 facebook|登入 facebook|log in to facebook/i.test(bodyText);
+      return document.readyState === 'complete' && (hasGroupLink || terminalText);
+    }, { timeout: timeoutMs });
+  } catch (_e) {
+    // The page can stay in a continuously-loading state. The caller will probe
+    // the DOM and create diagnostics instead of treating this timeout as fatal.
+  }
+  await page.waitForTimeout(1500);
+}
+
+async function scrollSearchResults(page) {
+  try {
+    await page.evaluate(() => {
+      const main = document.querySelector('div[role="main"]') || document.body;
+      const candidates = [main, ...Array.from(main?.querySelectorAll('div') || []).slice(0, 500)];
+      let best = null;
+      let bestGap = 0;
+      for (const el of candidates) {
+        const gap = (el.scrollHeight || 0) - (el.clientHeight || 0);
+        if (gap > bestGap + 200) {
+          best = el;
+          bestGap = gap;
+        }
+      }
+      if (best && best !== document.body && best !== document.documentElement) best.scrollTop += Math.max(1800, best.clientHeight * 1.5);
+      window.scrollBy(0, Math.max(2200, window.innerHeight * 2));
+    });
+  } catch (_e) {
+    // Fall through to the wheel event.
+  }
+  await page.mouse.wheel(0, 3600);
+  await page.waitForTimeout(1600);
+}
+
+function buildFacebookGroupSearchUrls(query) {
+  const q = encodeURIComponent(query);
+  return [
+    `https://www.facebook.com/search/groups/?q=${q}`,
+    `https://www.facebook.com/groups/search/groups_home/?q=${q}`,
+  ];
+}
+
+async function capturePhase1Diagnostics(page, outDir, gameName, variant, stage, extra = {}) {
+  if (!outDir) return null;
+  const dir = path.join(outDir, 'phase1_diagnostics');
+  fs.mkdirSync(dir, { recursive: true });
+  const base = `${slugify(gameName)}__${slugify(variant.query)}__${clean(variant.type).replace(/[^a-z0-9_-]+/gi, '_')}__${stage}`;
+  const jsonFile = path.join(dir, `${base}.json`);
+  const htmlFile = path.join(dir, `${base}.html`);
+  const screenshotFile = path.join(dir, `${base}.png`);
+  try {
+    const probe = await probeSearchPage(page);
+    fs.writeFileSync(jsonFile, JSON.stringify({
+      created_at: new Date().toISOString(),
+      game_name: gameName,
+      source_query: variant.query,
+      query_variant_type: variant.type,
+      stage,
+      probe,
+      extra,
+    }, null, 2), 'utf8');
+    try {
+      const html = await page.content();
+      fs.writeFileSync(htmlFile, html, 'utf8');
+    } catch (_e) {}
+    try {
+      await page.screenshot({ path: screenshotFile, fullPage: false, timeout: 30000 });
+    } catch (_e) {}
+    return { json_file: jsonFile, html_file: htmlFile, screenshot_file: screenshotFile };
+  } catch (_e) {
+    return null;
+  }
 }
 
 async function hasNoMoreResultsSignal(page) {
@@ -283,7 +500,7 @@ function mergeCandidate(existing, incoming) {
   };
 }
 
-async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressState) {
+async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressState, outDir, config) {
   if (progressState) {
     progressState.current_query = variant.query;
     progressState.current_query_variant_type = variant.type;
@@ -291,13 +508,20 @@ async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressSt
     progressState.current_query_candidates = 0;
     progressState.current_query_started_at = new Date().toISOString();
   }
-  const searchUrl = `https://www.facebook.com/search/groups/?q=${encodeURIComponent(variant.query)}`;
-  await gotoWithRetry(page, searchUrl);
-  await page.waitForTimeout(4500);
+
+  const searchUrls = buildFacebookGroupSearchUrls(variant.query);
+  let activeSearchUrlIndex = 0;
+  let activeSearchUrl = searchUrls[activeSearchUrlIndex];
+  let routeFallbackUsed = false;
+  const diagnosticsEnabled = config?.phase1_zero_result_diagnostics !== false;
+
+  await gotoWithRetry(page, activeSearchUrl);
+  await waitForSearchResultsReady(page, Number(config?.phase1_results_ready_timeout_ms || 25000));
 
   const startedAt = Date.now();
   const map = new Map();
   const stats = [];
+  const diagnosticFiles = [];
   let rounds = 0;
   let noNewStreak = 0;
   let noGrowthStreak = 0;
@@ -307,17 +531,50 @@ async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressSt
   while (true) {
     rounds++;
     let got = [];
+    let probe = null;
     try {
       got = await collectRound(page, gameName, variant.query, variant.type);
+      probe = await probeSearchPage(page);
     } catch (_e) {
-      await gotoWithRetry(page, searchUrl);
-      await page.waitForTimeout(3000);
+      await gotoWithRetry(page, activeSearchUrl);
+      await waitForSearchResultsReady(page, Number(config?.phase1_results_ready_timeout_ms || 25000));
       got = await collectRound(page, gameName, variant.query, variant.type);
+      probe = await probeSearchPage(page);
+    }
+
+    // Some Facebook accounts are routed to the newer Groups-search surface while
+    // others still receive the global-search surface. If the primary route exposes
+    // no group links at all, retry once through the alternate route before accepting
+    // a zero-result outcome.
+    if (
+      rounds === 1 &&
+      map.size === 0 &&
+      got.length === 0 &&
+      Number(probe?.group_link_count || 0) === 0 &&
+      activeSearchUrlIndex + 1 < searchUrls.length
+    ) {
+      if (diagnosticsEnabled) {
+        const files = await capturePhase1Diagnostics(page, outDir, gameName, variant, 'primary_route_zero', {
+          active_search_url: activeSearchUrl,
+          route_index: activeSearchUrlIndex,
+        });
+        if (files) diagnosticFiles.push(files);
+      }
+      activeSearchUrlIndex++;
+      activeSearchUrl = searchUrls[activeSearchUrlIndex];
+      routeFallbackUsed = true;
+      noNewStreak = 0;
+      noGrowthStreak = 0;
+      prevTotal = 0;
+      await gotoWithRetry(page, activeSearchUrl);
+      await waitForSearchResultsReady(page, Number(config?.phase1_results_ready_timeout_ms || 25000));
+      continue;
     }
 
     let newGroups = 0;
     for (const g of got) {
       const key = g.group_url;
+      if (!key) continue;
       const withSize = { ...g, card_group_size: parseMemberCount(g.snippet) };
       if (!map.has(key)) {
         map.set(key, withSize);
@@ -344,6 +601,9 @@ async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressSt
       progressState.last_round_no_new_streak = noNewStreak;
       progressState.last_round_no_growth_streak = noGrowthStreak;
       progressState.last_no_more_results_signal = noMore;
+      progressState.last_phase1_group_link_count = Number(probe?.group_link_count || 0);
+      progressState.current_search_url = activeSearchUrl;
+      progressState.route_fallback_used = routeFallbackUsed;
       progressState.last_updated_at = new Date().toISOString();
     }
 
@@ -353,24 +613,49 @@ async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressSt
       round: rounds,
       new_groups: newGroups,
       total_unique: map.size,
+      raw_group_link_count: Number(probe?.group_link_count || 0),
+      all_link_count: Number(probe?.all_link_count || 0),
+      login_or_checkpoint_signal: Boolean(probe?.login_or_checkpoint_signal),
+      temporary_error_signal: Boolean(probe?.temporary_error_signal),
+      no_results_signal: Boolean(probe?.no_results_signal),
+      search_url: activeSearchUrl,
+      search_url_index: activeSearchUrlIndex,
+      route_fallback_used: routeFallbackUsed,
       no_new_streak: noNewStreak,
       no_growth_streak: noGrowthStreak,
       no_more_results_signal: noMore,
       elapsed_sec: Math.floor(elapsed / 1000),
     });
 
-    console.log(JSON.stringify({ game: gameName, query: variant.query, variant_type: variant.type, round: rounds, new_groups: newGroups, total_unique: map.size }));
+    console.log(JSON.stringify({
+      game: gameName,
+      query: variant.query,
+      variant_type: variant.type,
+      round: rounds,
+      new_groups: newGroups,
+      total_unique: map.size,
+      raw_group_links: Number(probe?.group_link_count || 0),
+      route: activeSearchUrlIndex + 1,
+    }));
 
+    if (probe?.login_or_checkpoint_signal) {
+      stopReason = 'LOGIN_OR_CHECKPOINT_SIGNAL';
+      break;
+    }
+    if (probe?.temporary_error_signal && map.size === 0) {
+      stopReason = 'FACEBOOK_TEMPORARY_ERROR';
+      break;
+    }
     if (noMore) {
       stopReason = 'NO_MORE_RESULTS_SIGNAL';
       break;
     }
     if (noNewStreak >= 3) {
-      stopReason = 'NO_NEW_GROUPS_3_SCROLLS';
+      stopReason = map.size === 0 ? 'ZERO_CANDIDATES_AFTER_ROUTE_FALLBACK' : 'NO_NEW_GROUPS_3_SCROLLS';
       break;
     }
     if (noGrowthStreak >= 3) {
-      stopReason = 'LIST_NOT_GROWING';
+      stopReason = map.size === 0 ? 'ZERO_CANDIDATES_AFTER_ROUTE_FALLBACK' : 'LIST_NOT_GROWING';
       break;
     }
     if (elapsed > maxMinutes * 60 * 1000) {
@@ -378,8 +663,19 @@ async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressSt
       break;
     }
 
-    await page.mouse.wheel(0, 3200);
-    await page.waitForTimeout(1300);
+    await scrollSearchResults(page);
+  }
+
+  if (map.size === 0 && diagnosticsEnabled) {
+    const files = await capturePhase1Diagnostics(page, outDir, gameName, variant, 'final_zero', {
+      active_search_url: activeSearchUrl,
+      route_index: activeSearchUrlIndex,
+      route_fallback_used: routeFallbackUsed,
+      stop_reason: stopReason,
+      rounds,
+      stats,
+    });
+    if (files) diagnosticFiles.push(files);
   }
 
   return {
@@ -387,12 +683,15 @@ async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressSt
     query_variant_type: variant.type,
     stop_reason: stopReason,
     rounds,
+    route_fallback_used: routeFallbackUsed,
+    active_search_url: activeSearchUrl,
+    diagnostics: diagnosticFiles,
     candidates: Array.from(map.values()),
     stats,
   };
 }
 
-async function runOneGame(page, gameName, maxMinutes, config, progressState) {
+async function runOneGame(page, gameName, maxMinutes, config, progressState, outDir) {
   const searchPlan = buildSearchPlan(gameName, config);
   const map = new Map();
   const allStats = [];
@@ -409,13 +708,16 @@ async function runOneGame(page, gameName, maxMinutes, config, progressState) {
       progressState.current_query_index = variantIdx + 1;
       progressState.current_query_total = searchPlan.length;
     }
-    const one = await runOneSearchQuery(page, gameName, variant, perVariantMaxMinutes, progressState);
+    const one = await runOneSearchQuery(page, gameName, variant, perVariantMaxMinutes, progressState, outDir, config);
     queryRuns.push({
       query: one.query,
       query_variant_type: one.query_variant_type,
       stop_reason: one.stop_reason,
       rounds: one.rounds,
       candidates_count: one.candidates.length,
+      route_fallback_used: one.route_fallback_used,
+      active_search_url: one.active_search_url,
+      diagnostics: one.diagnostics,
     });
     allStats.push(...one.stats);
     if (progressState) {
@@ -501,9 +803,16 @@ async function runOneGame(page, gameName, maxMinutes, config, progressState) {
     const index = {
       created_at: new Date().toISOString(),
       mode: 'phase1',
+      collector_version: '7.0.1',
       games: [],
       out_dir: outDir,
       config_file: args.config ? path.resolve(args.config) : '',
+      extraction_policy: {
+        high_recall_group_url_collection: true,
+        hard_query_token_rejection: false,
+        dual_search_route_recovery: true,
+        zero_result_diagnostics: config.phase1_zero_result_diagnostics !== false,
+      },
       variant_policy: {
         automatic: ['canonical', 'punctuation_normalized', 'compact_spacing'],
         configured_only: ['connector_x', 'configured_variant', 'seed_group_url'],
@@ -522,7 +831,7 @@ async function runOneGame(page, gameName, maxMinutes, config, progressState) {
       progressState.last_updated_at = new Date().toISOString();
       codexProgressReporter.writeSnapshot('game_started');
 
-      const one = await runOneGame(page, gameName, maxMinutes, config, progressState);
+      const one = await runOneGame(page, gameName, maxMinutes, config, progressState, outDir);
       const slug = slugify(gameName);
       const candidatesFile = path.join(outDir, `phase1_${slug}_candidates.json`);
       const statsFile = path.join(outDir, `phase1_${slug}_stats.json`);

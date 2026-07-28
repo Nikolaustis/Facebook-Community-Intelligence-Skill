@@ -1,6 +1,19 @@
-# Facebook Group Monitor Skill V7.0.0
+# Facebook Group Monitor Skill V7.0.1
 
-V7.0.0 adds a true **Phase 1.5** between first-round Facebook search and second-round page collection. The previous release performed a lightweight name check inside the phase-2 loop; V7 first traverses the entire phase-1 queue offline, removes obvious search noise, writes a reduced queue and audit files, and only then connects to Facebook detail pages.
+V7.0.1 retains the true **Phase 1.5** introduced in V7.0.0 between first-round Facebook search and second-round page collection. The previous release performed a lightweight name check inside the phase-2 loop; V7 first traverses the entire phase-1 queue offline, removes obvious search noise, writes a reduced queue and audit files, and only then connects to Facebook detail pages.
+
+## V7.0.1 Phase 1 false-zero recovery
+
+V7.0.1 fixes a case where Facebook visibly returned many groups but Phase 1 wrote zero candidates. The first-round collector now:
+
+- groups links by canonical Facebook group URL instead of assuming the title is the link's own `innerText`;
+- extracts names from same-URL links, headings, `aria-label`, `title`, and nearby card text;
+- records query-token matching as audit metadata rather than rejecting the candidate in Phase 1;
+- waits for an actual result/terminal signal and retries a second Facebook group-search route when the first route contains no group links;
+- scrolls both the document and the largest nested scroll container;
+- writes JSON, HTML, and screenshot evidence under `phase1_diagnostics/` whenever a query still ends at zero.
+
+Phase 1 is now intentionally high-recall. Phase 1.5 remains the stage that removes name-irrelevant groups before Phase 2 opens pages.
 
 ## Why this change
 
