@@ -39,6 +39,7 @@ for (const testCase of cases) {
   assert.strictEqual(result.keep, testCase.expected_keep, `${testCase.name}: ${JSON.stringify(result)}`);
   if (testCase.expected_reason) assert.strictEqual(result.reason, testCase.expected_reason, testCase.name);
   if (testCase.expected_decision) assert.strictEqual(result.decision, testCase.expected_decision, testCase.name);
+  if (testCase.expected_boundary_mode) assert.strictEqual(result.match_boundary_mode, testCase.expected_boundary_mode, testCase.name);
 }
 
 process.stdout.write(JSON.stringify({ ok: true, cases: cases.length }, null, 2) + '\n');

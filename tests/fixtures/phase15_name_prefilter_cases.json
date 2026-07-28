@@ -98,5 +98,93 @@
     "game_name": "Blox Fruits",
     "group_name": "All Star Tower Defense - Blox Fruits Trade",
     "expected_keep": true
+  },
+  {
+    "name": "latin title directly followed by Traditional Chinese",
+    "game_name": "Sailor Piece",
+    "group_name": "Sailor Piece水手寶石中文交易討論區",
+    "expected_keep": true,
+    "expected_reason": "title_or_alias_in_group_name",
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "latin title directly followed by Thai",
+    "game_name": "All Star Tower Defense",
+    "group_name": "All Star Tower Defenseซื้อขายแลกเปลี่ยน",
+    "expected_keep": true,
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "latin title directly preceded by Thai",
+    "game_name": "All Star Tower Defense",
+    "group_name": "ซื้อขายAll Star Tower Defense",
+    "expected_keep": true,
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "numeric latin title directly followed by Chinese",
+    "game_name": "Pet Simulator 99",
+    "group_name": "Pet Simulator 99中文讨论/交易群",
+    "expected_keep": true,
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "latin title directly followed by Arabic",
+    "game_name": "Pet Simulator 99",
+    "group_name": "Pet Simulator 99العرب",
+    "expected_keep": true,
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "latin title directly followed by Lao",
+    "game_name": "Sailor Piece",
+    "group_name": "Sailor Pieceຊື້ຂາຍ",
+    "expected_keep": true,
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "zero width format controls between title tokens",
+    "game_name": "All Star Tower Defense",
+    "group_name": "All​ Star​ Tower​ Defense​ซื้อขาย",
+    "expected_keep": true,
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "short alias directly followed by Chinese is safe script transition",
+    "game_name": "Grow a Garden",
+    "group_name": "GAG中文交易群",
+    "expected_keep": true,
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "short alias directly followed by Thai is safe script transition",
+    "game_name": "Grow a Garden",
+    "group_name": "GAGซื้อขาย",
+    "expected_keep": true,
+    "expected_boundary_mode": "latin_script_transition"
+  },
+  {
+    "name": "latin plural continuation remains blocked",
+    "game_name": "Sailor Piece",
+    "group_name": "Sailor Pieces - Roblox VN",
+    "expected_keep": false
+  },
+  {
+    "name": "latin suffix continuation remains blocked",
+    "game_name": "Sailor Piece",
+    "group_name": "Sailor PieceMN",
+    "expected_keep": false
+  },
+  {
+    "name": "latin sequel suffix remains blocked",
+    "game_name": "All Star Tower Defense",
+    "group_name": "All Star Tower DefenseX Trade",
+    "expected_keep": false
+  },
+  {
+    "name": "numeric continuation remains blocked",
+    "game_name": "Pet Simulator 99",
+    "group_name": "Pet Simulator 99100 Trading",
+    "expected_keep": false
   }
 ]

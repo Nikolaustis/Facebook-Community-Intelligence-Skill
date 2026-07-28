@@ -1,4 +1,4 @@
-# V7.0.1 Overlay Instructions
+# V7.1.0 Overlay Instructions
 
 1. Stop every active Facebook Group Monitor process before replacing files.
 2. Extract this archive into the existing Skill root and replace matching files.
@@ -24,3 +24,6 @@ npm run phase15:test
 
 9. Re-run Phase 1 for any game whose older run produced `total_candidates: 0`. Phase 1.5 cannot recover links that were never collected.
 10. If a query still ends at zero, send the matching files from `runs\<run>\phase1_diagnostics\`; do not send only the final console summary.
+
+11. For a directory that already contains V7.0.x Phase 1.5 outputs, rerun Phase 1.5 with the same original `phase1_index.json`. The `7.1.0` cache version automatically invalidates the old manifest. You may also pass `--force true` explicitly.
+12. Do not continue Phase 2 from the old V7.0.1 `phase15_prefilter_index.json`; rebuild the reduced queue first so mixed-script title groups are restored.

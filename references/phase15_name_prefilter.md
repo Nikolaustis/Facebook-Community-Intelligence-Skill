@@ -28,3 +28,29 @@
 - 多游戏群名只要目标证据独立存在即可保留。
 - 较短目标若只嵌在更具体兄弟标题中则丢弃。
 - 预筛结果必须可审计、可缓存、可重建，原始候选文件不得覆盖。
+
+
+## V7.1.0 混合文字边界规则
+
+当目标短语仅由拉丁字母和数字构成时，词边界只阻止相邻的拉丁字母或数字。汉字、泰文、老挝文、阿拉伯文、韩文、西里尔文等非拉丁文字可以与英文标题直接相连。
+
+因此以下形式可保留：
+
+```text
+Sailor Piece水手寶石中文交易討論區
+All Star Tower Defenseซื้อขายแลกเปลี่ยน
+ซื้อขายPet Simulator 99
+GAG中文交易群
+```
+
+以下拉丁/数字延续仍不得误命中：
+
+```text
+Sailor Pieces
+Sailor PieceMN
+All Star Tower DefenseX
+Pet Simulator 99100
+GAG2（不能作为 GAG）
+```
+
+标题词之间允许 Unicode 格式控制符（例如零宽空格 U+200B），以兼容 Facebook 卡片文本中的隐藏排版字符。审计字段 `__phase15_prefilter_match_boundary_mode` 记录命中模式。

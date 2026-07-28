@@ -3,7 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { readJsonFile, writeJsonAtomic } = require('./json_io');
 
-const PREFILTER_VERSION = '7.0.0';
+const PREFILTER_VERSION = '7.1.0';
 
 const GENERIC_SHORT_QUERY_TERMS = new Set([
   'id', 'my', 'sea', 'eu', 'na', 'cn', 'hk', 'tw', 'jp', 'kr', 'th', 'vn', 'ph', 'br',
@@ -282,6 +282,13 @@ function isShortStandaloneLatinAlias(phrase) {
   return Boolean(compact && compact.length <= 5 && /^[a-z0-9]+$/i.test(compact) && words && !words.includes(' '));
 }
 
+function phraseUsesOnlyLatinLettersAndNumbers(phrase) {
+  const raw = stripDiacritics(clean(phrase)).normalize('NFKC');
+  const alphanumeric = raw.match(/[\p{Letter}\p{Number}]/gu) || [];
+  if (!alphanumeric.length) return false;
+  return alphanumeric.every((character) => /[\p{Script=Latin}\p{Number}]/u.test(character));
+}
+
 function buildPhraseRegex(phrase) {
   const raw = stripDiacritics(clean(phrase)).normalize('NFKC');
   const compact = normalizeCompact(raw);
@@ -289,20 +296,37 @@ function buildPhraseRegex(phrase) {
     ? (compact.match(/[a-z]+|[0-9]+/gi) || [])
     : (raw.match(/[\p{Letter}\p{Number}]+/gu) || []);
   if (!tokens.length) return null;
-  const body = tokens.map((token) => escapeRegExp(token)).join('[\\s\\p{P}\\p{S}_]*');
+
+  // Facebook group names frequently concatenate an English game title directly
+  // with Chinese, Thai, Lao, Arabic, Hangul, Cyrillic, or another non-Latin script.
+  // A Unicode-wide \p{Letter} boundary rejects those legitimate script transitions.
+  // For a title made only of Latin letters/numbers, therefore, boundary checks are
+  // limited to the Latin script plus numbers. Latin continuations such as Pieces,
+  // DefenseX, PieceMN, or 99100 remain blocked.
+  const latinScriptBoundary = phraseUsesOnlyLatinLettersAndNumbers(raw);
+  const boundaryClass = latinScriptBoundary
+    ? '\\p{Script=Latin}\\p{Number}'
+    : '\\p{Letter}\\p{Number}';
+  const separator = '[\\s\\p{P}\\p{S}\\p{Cf}_]*';
+  const body = tokens.map((token) => escapeRegExp(token)).join(separator);
   const numericContinuationGuard = isShortStandaloneLatinAlias(raw) && /[a-z]$/i.test(compact)
-    ? '(?![\\s\\p{P}\\p{S}_]*[0-9])'
+    ? `(?!${separator}[0-9])`
     : '';
-  return new RegExp(
-    `(^|[^\\p{Letter}\\p{Number}])(${body})${numericContinuationGuard}(?=$|[^\\p{Letter}\\p{Number}])`,
+  const regex = new RegExp(
+    `(^|[^${boundaryClass}])(${body})${numericContinuationGuard}(?=$|[^${boundaryClass}])`,
     'giu',
   );
+  return {
+    regex,
+    boundary_mode: latinScriptBoundary ? 'latin_script_transition' : 'unicode_alphanumeric',
+  };
 }
 
 function findPhraseHits(text, phraseItem) {
   const normalizedText = stripDiacritics(clean(text)).normalize('NFKC');
-  const regex = buildPhraseRegex(phraseItem.phrase);
-  if (!regex || !normalizedText) return [];
+  const regexProfile = buildPhraseRegex(phraseItem.phrase);
+  if (!regexProfile || !normalizedText) return [];
+  const { regex, boundary_mode: boundaryMode } = regexProfile;
   const hits = [];
   let match;
   while ((match = regex.exec(normalizedText)) !== null) {
@@ -310,7 +334,7 @@ function findPhraseHits(text, phraseItem) {
     const matchedBody = match[2] || '';
     const start = match.index + leading.length;
     const end = start + matchedBody.length;
-    hits.push({ ...phraseItem, start, end, matched_text: matchedBody, coordinate_space: 'text' });
+    hits.push({ ...phraseItem, start, end, matched_text: matchedBody, coordinate_space: 'text', boundary_mode: boundaryMode });
     if (regex.lastIndex === match.index) regex.lastIndex++;
   }
   if (hits.length) return hits;
@@ -329,6 +353,7 @@ function findPhraseHits(text, phraseItem) {
         end: index + compactPhrase.length,
         matched_text: compactPhrase,
         coordinate_space: 'compact',
+        boundary_mode: 'localized_compact',
       }];
     }
   }
@@ -432,6 +457,7 @@ function evaluateCandidate(gameName, candidate, profiles, options) {
         review: false,
         match_phrase: bestTarget ? bestTarget.phrase : '',
         match_source: bestTarget ? bestTarget.source : '',
+        match_boundary_mode: bestTarget ? bestTarget.boundary_mode || '' : '',
         sibling_phrase: containingSibling ? containingSibling.phrase : '',
         sibling_game_name: containingSibling ? containingSibling.sibling_game_name : '',
       };
@@ -444,6 +470,7 @@ function evaluateCandidate(gameName, candidate, profiles, options) {
       review: false,
       match_phrase: best.phrase,
       match_source: best.source,
+      match_boundary_mode: best.boundary_mode || '',
       matched_text: best.matched_text,
     };
   }
@@ -656,6 +683,7 @@ function preparePhase15Index({
   const reviewRows = [];
   const reasonCounts = {};
   const decisionCounts = {};
+  const matchBoundaryModeCounts = {};
   const perGame = [];
   let processed = 0;
   let keptTotal = 0;
@@ -672,6 +700,7 @@ function preparePhase15Index({
     const kept = [];
     const gameReasonCounts = {};
     const gameDecisionCounts = {};
+    const gameMatchBoundaryModeCounts = {};
     const examples = {};
     let gameReviewCount = 0;
 
@@ -684,6 +713,11 @@ function preparePhase15Index({
       decisionCounts[decision] = (decisionCounts[decision] || 0) + 1;
       gameReasonCounts[reason] = (gameReasonCounts[reason] || 0) + 1;
       gameDecisionCounts[decision] = (gameDecisionCounts[decision] || 0) + 1;
+      const matchBoundaryMode = result.match_boundary_mode || '';
+      if (matchBoundaryMode) {
+        matchBoundaryModeCounts[matchBoundaryMode] = (matchBoundaryModeCounts[matchBoundaryMode] || 0) + 1;
+        gameMatchBoundaryModeCounts[matchBoundaryMode] = (gameMatchBoundaryModeCounts[matchBoundaryMode] || 0) + 1;
+      }
       if (!examples[reason]) examples[reason] = [];
       if (examples[reason].length < options.max_examples_per_reason) {
         examples[reason].push({
@@ -692,6 +726,7 @@ function preparePhase15Index({
           source_query: clean(candidate && candidate.source_query),
           decision,
           match_phrase: result.match_phrase || '',
+          match_boundary_mode: result.match_boundary_mode || '',
           sibling_phrase: result.sibling_phrase || '',
         });
       }
@@ -701,6 +736,7 @@ function preparePhase15Index({
         __phase15_prefilter_reason: reason,
         __phase15_prefilter_match_phrase: result.match_phrase || '',
         __phase15_prefilter_match_source: result.match_source || '',
+        __phase15_prefilter_match_boundary_mode: result.match_boundary_mode || '',
         __phase15_prefilter_sibling_phrase: result.sibling_phrase || '',
         __phase15_prefilter_sibling_game_name: result.sibling_game_name || '',
       };
@@ -761,6 +797,7 @@ function preparePhase15Index({
       reduction_rate: candidates.length ? Number(((candidates.length - kept.length) / candidates.length).toFixed(6)) : 0,
       reason_counts: gameReasonCounts,
       decision_counts: gameDecisionCounts,
+      match_boundary_mode_counts: gameMatchBoundaryModeCounts,
       examples,
     });
   }
@@ -801,6 +838,8 @@ function preparePhase15Index({
         'connector_word_elision_in_full_title',
         'configured_or_source-query_aliases',
         'localized_titles_requiring_explicit_query_or_alias',
+        'latin_title_adjacent_to_non_latin_script',
+        'unicode_format_controls_between_title_tokens',
       ],
       legacy_false_positive_guardrails: [
         'short_alias_requires_standalone_token_boundaries',
@@ -815,6 +854,7 @@ function preparePhase15Index({
     reduction_rate: totalCandidates ? Number((rejectedTotal / totalCandidates).toFixed(6)) : 0,
     reason_counts: reasonCounts,
     decision_counts: decisionCounts,
+    match_boundary_mode_counts: matchBoundaryModeCounts,
     per_game: perGame,
   };
 
@@ -873,6 +913,8 @@ module.exports = {
   normalizeCompact,
   buildAutomaticSearchVariants,
   buildHistoricalSafeVariants,
+  phraseUsesOnlyLatinLettersAndNumbers,
+  buildPhraseRegex,
   buildProfiles,
   evaluateCandidate,
   mergeOptions,

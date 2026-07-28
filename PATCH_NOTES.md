@@ -1,3 +1,17 @@
+# V7.1.0 Patch Notes
+
+- Fixed Phase 1.5 false rejection when a Latin game title or alias is directly adjacent to Chinese, Thai, Lao, Arabic, Hangul, Cyrillic, or another non-Latin script.
+- Replaced Unicode-wide letter boundaries with script-aware Latin-letter/number boundaries for Latin/digit phrases.
+- Preserved strict continuation guards: Latin suffixes, plural extensions, numbered continuations, and more-specific sibling titles remain blocked.
+- Added Unicode format-control separators, including zero-width spaces, between title tokens.
+- Added `__phase15_prefilter_match_boundary_mode` plus aggregate/per-game `match_boundary_mode_counts` to the audit output.
+- Bumped the Phase 1.5 cache schema to `7.1.0`; V7.0.x reduced queues are rebuilt automatically.
+- Expanded Phase 1.5 regression coverage from 15 to 28 cases.
+- Replayed the uploaded 621 rejected records: 141 were safely recovered, including 104 literal full-title mixed-script cases and 37 compact/zero-width formatting variants; 480 remained rejected.
+- Preserved V7.0.1 Phase 1 false-zero recovery and all existing Phase 2, region, checkpoint, XLSX, and shutdown behavior.
+
+---
+
 # V7.0.1 Patch Notes
 
 - Fixed false-zero Phase 1 runs where manual Facebook search showed groups but `collectRound()` returned none.

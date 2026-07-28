@@ -1,6 +1,20 @@
-# Facebook Group Monitor Skill V7.0.1
+# Facebook Group Monitor Skill V7.1.0
 
-V7.0.1 retains the true **Phase 1.5** introduced in V7.0.0 between first-round Facebook search and second-round page collection. The previous release performed a lightweight name check inside the phase-2 loop; V7 first traverses the entire phase-1 queue offline, removes obvious search noise, writes a reduced queue and audit files, and only then connects to Facebook detail pages.
+V7.1.0 retains the true **Phase 1.5** introduced in V7.0.0 between first-round Facebook search and second-round page collection. The previous release performed a lightweight name check inside the phase-2 loop; V7 first traverses the entire phase-1 queue offline, removes obvious search noise, writes a reduced queue and audit files, and only then connects to Facebook detail pages.
+
+
+## V7.1.0 mixed-script boundary correction
+
+V7.0.1 used a Unicode-wide letter boundary around English titles. That incorrectly rejected titles directly touching Chinese, Thai, Lao, Arabic, or other non-Latin text. V7.1.0 uses script-aware boundaries for Latin/digit titles and aliases:
+
+- keeps `Sailor Piece水手寶石中文交易討論區`;
+- keeps `All Star Tower Defenseซื้อขาย`;
+- keeps `Pet Simulator 99中文讨论/交易群`;
+- keeps short aliases such as `GAG中文`, while still rejecting `GAGS`, `GAGGED`, `GAG2`, and `9GAG`;
+- accepts zero-width formatting characters between title tokens;
+- records the matching mode in `__phase15_prefilter_match_boundary_mode` and aggregate audit counts.
+
+The Phase 1.5 cache version is now `7.1.0`, so an existing V7.0.x manifest is invalidated automatically and the queue is rebuilt.
 
 ## V7.0.1 Phase 1 false-zero recovery
 

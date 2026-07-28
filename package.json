@@ -1,7 +1,7 @@
 {
-  "name": "fb-group-monitor-skill-v7-0-1",
-  "version": "7.0.1",
-  "description": "Two-stage Facebook game-group monitor with resilient Phase 1 DOM extraction, dual search-route recovery, zero-result diagnostics, Phase 1.5 name-relevance queue prefilter, and durable Windows execution.",
+  "name": "fb-group-monitor-skill-v7-1-0",
+  "version": "7.1.0",
+  "description": "Two-stage Facebook game-group monitor with resilient Phase 1 extraction, Phase 1.5 script-aware mixed-language title matching, safe alias/sibling guards, durable Windows execution, and audited queue reduction.",
   "private": true,
   "scripts": {
     "login": "powershell -ExecutionPolicy Bypass -File .\\scripts\\open_chrome_9222.ps1",

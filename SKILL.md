@@ -1,10 +1,10 @@
 ---
 name: facebook-group-monitor
-version: 7.0.1
-description: Two-stage Facebook game-group monitoring with resilient first-round extraction, dual-route false-zero recovery, explicit Phase 1.5 name-relevance queue prefilter, source-query and expanded-query evidence, safe short-alias boundaries, sibling-title suppression, durable recovery, verified Windows startup, multi-game output, semantic region adjudication, and prompt-driven shutdown.
+version: 7.1.0
+description: Two-stage Facebook game-group monitoring with resilient first-round extraction, dual-route false-zero recovery, explicit Phase 1.5 name-relevance queue prefilter, script-aware Latin/non-Latin boundaries, source-query evidence, safe short-alias and sibling guards, durable recovery, verified Windows startup, multi-game output, semantic region adjudication, and prompt-driven shutdown.
 ---
 
-# Facebook Group Monitor V7.0.1
+# Facebook Group Monitor V7.1.0
 
 ## Operating sequence
 
@@ -67,6 +67,13 @@ The original `phase1_index.json` and original candidate JSON files must remain u
 The actual first-round `source_query` and merged `source_queries` may validate a group name even when the canonical English title is absent, which is required for acronyms, localized titles, and configured expansions.
 
 A source query is not accepted merely because Facebook returned the card. The query itself must appear in the group name under the same safe boundary rules. Generic short terms such as region codes, `global`, `trade`, `official`, `group`, or `community` cannot independently qualify a candidate. A source query that exactly belongs to a sibling title or sibling alias cannot override sibling exclusion for the target game.
+
+
+## Mandatory mixed-script boundary rule
+
+For a target title or alias containing only Latin letters and numbers, Chinese, Thai, Lao, Arabic, Hangul, Cyrillic, and other non-Latin scripts are valid adjacent boundaries. A visible space is not required. Unicode format controls such as zero-width spaces are valid separators between title tokens.
+
+Latin-letter and numeric continuation remains blocked. `Sailor Piece中文` is valid, while `Sailor Pieces`, `Sailor PieceMN`, `All Star Tower DefenseX`, `Pet Simulator 99100`, and `GAG2` as evidence for `GAG` are not.
 
 ## Mandatory short-alias rule
 
