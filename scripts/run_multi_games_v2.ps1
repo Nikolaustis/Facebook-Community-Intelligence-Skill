@@ -16,7 +16,7 @@ if ([string]::IsNullOrWhiteSpace($RunDir)) {
 
 $RunDir = (Resolve-Path (New-Item -ItemType Directory -Force -Path $RunDir)).Path
 
-Write-Host "[1/3] 第一轮候选采集开始..."
+Write-Host "[1/4] 第一轮候选采集开始..."
 $phase1Args = @(
   (Join-Path $PSScriptRoot "phase1_collect_candidates.js"),
   "--games", $Games,
@@ -41,7 +41,21 @@ if ($confirm -ne "可以停止，继续") {
   exit 0
 }
 
-Write-Host "[2/3] 第二轮详情采集开始..."
+Write-Host "[2/4] Phase 1.5 群名预筛开始..."
+$phase15Args = @(
+  (Join-Path $PSScriptRoot "phase15_prefilter_candidates.js"),
+  "--index", $indexPath,
+  "--out-dir", $RunDir
+)
+if (-not [string]::IsNullOrWhiteSpace($Config)) {
+  $phase15Args += @("--config", $Config)
+}
+node @phase15Args
+if ($LASTEXITCODE -ne 0) {
+  throw "Phase 1.5 群名预筛失败。"
+}
+
+Write-Host "[3/4] 第二轮详情采集开始..."
 $phase2Args = @(
   (Join-Path $PSScriptRoot "phase2_collect_details.js"),
   "--index", $indexPath,
@@ -60,4 +74,4 @@ if ($ShutdownAfterComplete) {
 }
 node @phase2Args
 
-Write-Host "[3/3] 完成。输出目录：$RunDir"
+Write-Host "[4/4] 完成。输出目录：$RunDir"

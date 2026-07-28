@@ -1,0 +1,102 @@
+[
+  {
+    "name": "canonical full title",
+    "game_name": "Grow a Garden",
+    "group_name": "Grow a Garden Việt Nam",
+    "expected_keep": true,
+    "expected_reason": "title_or_alias_in_group_name"
+  },
+  {
+    "name": "standalone short alias",
+    "game_name": "Grow a Garden",
+    "group_name": "♥️GAG♥️ Buy Sell Trade",
+    "expected_keep": true
+  },
+  {
+    "name": "short alias does not match numbered sibling",
+    "game_name": "Grow a Garden",
+    "group_name": "GAG2 Indonesia Buy Sell",
+    "expected_keep": false,
+    "expected_decision": "reject_sibling_only",
+    "source_query": "GAG2",
+    "expected_reason": "source_query_is_sibling_title_or_alias"
+  },
+  {
+    "name": "short alias does not match ordinary word",
+    "game_name": "Grow a Garden",
+    "group_name": "AI gagged creators community",
+    "expected_keep": false
+  },
+  {
+    "name": "short alias does not match plural word",
+    "game_name": "Grow a Garden",
+    "group_name": "Just For Laughs Gags",
+    "expected_keep": false
+  },
+  {
+    "name": "alphanumeric alias accepts separated number",
+    "game_name": "Grow a Garden 2",
+    "group_name": "Gag 2 Indonesia",
+    "expected_keep": true
+  },
+  {
+    "name": "historical singular full-title variant",
+    "game_name": "Anime Vanguards",
+    "group_name": "Anime Vanguard VN",
+    "expected_keep": true
+  },
+  {
+    "name": "historical singular ranger variant",
+    "game_name": "LINE Rangers",
+    "group_name": "LINE Ranger ซื้อขายพูดคุย",
+    "expected_keep": true
+  },
+  {
+    "name": "connector elision full title",
+    "game_name": "Seal M on CROSS",
+    "group_name": "JUAL BELI SEAL M CROSS INDONESIA",
+    "expected_keep": true
+  },
+  {
+    "name": "localized configured source query",
+    "game_name": "FC Mobile",
+    "group_name": "FC모바일코리아",
+    "source_query": "FC모바일",
+    "expected_keep": true,
+    "expected_reason": "source_query_in_group_name"
+  },
+  {
+    "name": "query only in search context not group name",
+    "game_name": "FC Mobile",
+    "group_name": "Football Players Community",
+    "source_query": "FC Mobile",
+    "expected_keep": false
+  },
+  {
+    "name": "seed url remains inconclusive",
+    "game_name": "FC Mobile",
+    "group_name": "",
+    "source_is_seed_url": true,
+    "expected_keep": true,
+    "expected_decision": "keep_seed_url"
+  },
+  {
+    "name": "truncated name remains inconclusive",
+    "game_name": "FC Mobile",
+    "group_name": "FC Mobile Buy and Sell…",
+    "expected_keep": true,
+    "expected_decision": "keep_inconclusive"
+  },
+  {
+    "name": "explicit multi-game title preserved for first game",
+    "game_name": "All Star Tower Defense",
+    "group_name": "All Star Tower Defense - Blox Fruits Trade",
+    "expected_keep": true
+  },
+  {
+    "name": "explicit multi-game title preserved for second game",
+    "game_name": "Blox Fruits",
+    "group_name": "All Star Tower Defense - Blox Fruits Trade",
+    "expected_keep": true
+  }
+]

@@ -390,7 +390,7 @@ if ($Task -eq "phase2" -and -not $DirectBackground) {
       $arguments = "-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Bootstrap`""
       $action = New-ScheduledTaskAction -Execute $PowerShellExe -Argument $arguments -WorkingDirectory $RootDir
     }
-    Register-ScheduledTask -TaskName $ScheduledTaskName -Action $action -Trigger $triggers -Settings $settings -Principal $principal -Description "Facebook Group Monitor V6.6.4 phase 2; safe alias boundaries; same-business-region preservation; isolated supervisor logs; verified startup; reboot-resumable; self-deletes after execution." -Force | Out-Null
+    Register-ScheduledTask -TaskName $ScheduledTaskName -Action $action -Trigger $triggers -Settings $settings -Principal $principal -Description "Facebook Group Monitor V7.0.0 Phase 1.5 + Phase 2; pre-browser name relevance filtering; safe alias boundaries; same-business-region preservation; isolated supervisor logs; verified startup; reboot-resumable; self-deletes after execution." -Force | Out-Null
     Start-ScheduledTask -TaskName $ScheduledTaskName
   }
 

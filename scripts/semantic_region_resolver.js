@@ -367,7 +367,7 @@ function buildCandidateLaunch(candidate, args) {
 }
 
 function normalizeProviderOrder(_raw) {
-  // V6.6.4 uses one fixed policy. Legacy task files cannot restore Codex-first
+  // V7.0.0 preserves one fixed policy. Legacy task files cannot restore Codex-first
   // ordering or omit the API stage. Availability is controlled by each provider's
   // enabled/configured state, not by changing the chain.
   return ['custom_api', 'codex_exec', 'rules_only'];
@@ -525,7 +525,7 @@ function mergeSemanticRegionResolverConfig(config, configFile, outDir) {
   merged.fail_closed_on_low_confidence = boolLike(merged.fail_closed_on_low_confidence, true);
   merged.fail_closed_on_error = boolLike(merged.fail_closed_on_error, true);
   merged.allow_model_explicit_region_lock = boolLike(merged.allow_model_explicit_region_lock, true);
-  // V6.6.4 fixed policy: any low-confidence API result must continue to the
+  // V7.0.0 preserved fixed policy: any low-confidence API result must continue to the
   // next provider and ultimately Codex. Legacy/private local files that still
   // contain false are intentionally overridden at runtime.
   merged.fallback_on_low_confidence = true;
@@ -988,7 +988,7 @@ function persistCodexDiagnostic(config, payload) {
     if (!config?.diagnostic_file) return;
     writeJsonAtomic(config.diagnostic_file, {
       diagnostic_kind: 'facebook_group_monitor_codex_exec',
-      version: '6.6.4',
+      version: '7.0.0',
       updated_at: new Date().toISOString(),
       requested_command: config.command,
       environment_safety: {

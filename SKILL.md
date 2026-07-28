@@ -1,91 +1,109 @@
 ---
 name: facebook-group-monitor
-version: 6.6.4
-description: Two-stage Facebook game-group monitoring with safe short-alias boundaries, sibling alias exclusion, same-business-region preservation, isolated supervisor logs, verified Windows startup, multi-game output, Node-verified shutdown, API-first semantic adjudication, BOM-safe inputs, durable recovery, and prompt-driven shutdown.
+version: 7.0.0
+description: Two-stage Facebook game-group monitoring with an explicit Phase 1.5 name-relevance queue prefilter, source-query and expanded-query evidence, safe short-alias boundaries, sibling-title suppression, durable recovery, verified Windows startup, multi-game output, semantic region adjudication, and prompt-driven shutdown.
 ---
 
-# Facebook Group Monitor V6.6.4
+# Facebook Group Monitor V7.0.0
 
 ## Operating sequence
 
-1. Collect phase-1 candidates with source-query metadata.
-2. Validate phase-2 index, configuration, shutdown policy, and all candidate files before launch.
-3. Prefilter first-round group names before opening About or discussion pages.
-4. Validate target titles, aliases, controlled variants, sibling titles, sibling aliases, and IP-root-only matches.
-5. Resolve language and region with deterministic evidence first.
-6. For unresolved risk candidates use:
+1. Phase 1 collects candidates and preserves `source_query`, `source_queries`, query-variant types, source game, card name, URL, and card member count.
+2. Validate the phase-2 index, task config, shutdown policy, and every original candidate file.
+3. Run **Phase 1.5 name prefiltering before any phase-2 Facebook page is opened**.
+4. Phase 1.5 traverses every first-round group name and evaluates:
+   - canonical game title;
+   - punctuation/spacing variants;
+   - configured aliases;
+   - configured expanded search terms;
+   - the candidate's actual `source_query` and `source_queries`;
+   - safe singular/full-title and connector-elision variants derived from the historical positive corpus;
+   - sibling-game titles, aliases, and configured variants;
+   - configured IP roots.
+5. Write a reduced candidate queue and full audit artifacts, then start phase-2 detail collection from the reduced queue.
+6. Keep the existing in-loop phase-2 name prefilter as a second defensive check.
+7. Resolve language and region with deterministic evidence first, then configured APIs, verified standalone Codex CLI, local rules, and controlled GeoNames.
+8. Save a complete checkpoint after every phase-2 candidate.
+9. Generate aligned `detail` and `manual_review` sheets using the authoritative field order.
+10. Close Chrome after verified finalization. Default to no shutdown; use only the current run's explicit shutdown instruction.
+
+## Mandatory Phase 1.5 rule
+
+Phase 1.5 is an offline queue-construction stage. It must finish before `/about` or discussion pages are opened.
+
+Default disposition:
+
+- Keep: canonical title, alias, configured variant, or actual source query appears independently in the group name.
+- Keep: seed URL, missing name, or visibly truncated name, because name-only judgment is inconclusive.
+- Reject: no title, alias, or source-query evidence in the group name.
+- Reject: only an IP root appears.
+- Reject: only a sibling game appears.
+- Reject: the shorter target evidence exists only inside a more-specific sibling title.
+
+Phase 1.5 must write:
 
 ```text
-custom APIs in configured order
-→ verified standalone Codex CLI
-→ local rules and controlled GeoNames
+phase15_prefilter_index.json
+phase15_name_prefilter_audit.json
+phase15_name_prefilter_rejected.json
+phase15_name_prefilter_review.json
+phase15_name_prefilter_manifest.json
+phase15_name_prefilter_progress.json
+phase15_candidates/*.json
 ```
 
-7. Save a complete checkpoint after every candidate.
-8. Generate aligned `detail` and `manual_review` sheets using the authoritative field order in this package.
-9. Close Chrome after successful finalization and delete completed scheduled tasks.
-10. Default to no shutdown. Build the run-specific shutdown policy only from the user's current instruction.
+The original `phase1_index.json` and original candidate JSON files must remain unchanged.
+
+## Mandatory search-query rule
+
+The actual first-round `source_query` and merged `source_queries` may validate a group name even when the canonical English title is absent, which is required for acronyms, localized titles, and configured expansions.
+
+A source query is not accepted merely because Facebook returned the card. The query itself must appear in the group name under the same safe boundary rules. Generic short terms such as region codes, `global`, `trade`, `official`, `group`, or `community` cannot independently qualify a candidate. A source query that exactly belongs to a sibling title or sibling alias cannot override sibling exclusion for the target game.
 
 ## Mandatory short-alias rule
 
 Never use unrestricted substring matching for a short Latin alias. A short alias must be a standalone token with Latin-letter/number boundaries.
 
-For aliases containing a trailing number, separators between letters and the number are equivalent:
-
 ```text
-GAG2 = GAG 2 = GAG-2
+GAG  → valid standalone alias
+GAGS / GAGGED / 9GAG → not GAG
+GAG2 / GAG 2 / GAG-2 → valid GAG2, not GAG
 ```
 
-A shorter alias ending in letters must not match a numbered continuation:
+## Mandatory sibling rule
 
-```text
-GAG does not match GAG2 or GAG 2
-```
+Sibling exclusion includes every sibling game's canonical title, aliases, configured variants, and historical-safe full-title variants.
 
-It must also not match longer words such as `gags`, `gagged`, or `9gag`.
+A shorter target is rejected only when all its evidence is embedded inside a more-specific sibling form. A group name that independently contains two complete target games may still be retained once under each game.
 
-Sibling exclusion must include each sibling game's canonical title, aliases, and configured title variants. A more specific sibling form must suppress a shorter contained-title match.
+## Mandatory cache and resume rule
 
-## Mandatory same-business-region rule
+Phase 1.5 uses a deterministic cache fingerprint covering:
 
-When explicit country keywords and/or flags identify several countries that all normalize to one business-region bucket, preserve that bucket and mark the source with `_same_business_region`.
+- phase-1 index metadata;
+- every candidate file's path, size, and modification time;
+- aliases, sibling titles, IP roots, title variants, and Phase 1.5 options.
 
-Do not send a resolved same-business-region result through cross-region About adjudication. Example:
-
-```text
-LA + TH → SEA
-```
+If inputs are unchanged, resume uses the cached reduced queue. The phase-2 checkpoint continues to reference the original `phase1_index.json`, preserving durable resume compatibility.
 
 ## Mandatory multi-game output rule
 
-Final-output uniqueness is:
+Final uniqueness remains:
 
 ```text
 group_url + game_name
 ```
 
-When one group independently and clearly matches multiple target games, preserve one final row for each matched game. Only same-URL, same-game duplicates may be collapsed, keeping the highest score.
+Only same-URL, same-game duplicates may be collapsed, keeping the highest score.
 
-## Mandatory resume revalidation
+## Mandatory supervisor, JSON, and shutdown rules
 
-On resume from a non-finalized full checkpoint, revalidate staged rows whose prior match type was a strong group-name title match. Remove rows that no longer satisfy the current title and sibling rules, and record the removal count and examples in runtime statistics.
-
-## Mandatory supervisor-log isolation
-
-`phase2_supervisor.js` owns the phase-2 child stdout and stderr files. `scheduled_phase2_runner.ps1` must write supervisor wrapper output to separate files. Do not treat a PID alone as startup success; require a live phase-2 child and fresh readable `phase2_progress.json`.
-
-## Mandatory shutdown verification
-
-Use `scripts/verify_shutdown_state.js` to read the full checkpoint, progress, completion, policy, and final outputs. PowerShell may issue shutdown only from the small generated verification report with `all_valid=true` and a currently permitted shutdown policy.
-
-## Mandatory Codex CLI isolation
-
-Never create, set, recommend, or depend on the global `CODEX_CLI_PATH` environment variable. Prefer private configuration, normal PATH/npm discovery, or the Skill-specific `FB_MONITOR_CODEX_CLI_PATH` override.
-
-## Mandatory JSON handling
-
-Use `scripts/json_io.js` for JavaScript JSON reads. PowerShell-generated JSON must use UTF-8 without BOM.
+- Supervisor and phase-2 child logs remain isolated.
+- Startup success requires a live child and a fresh readable progress file; Phase 1.5 writes progress immediately.
+- Never depend on the global `CODEX_CLI_PATH` variable.
+- JavaScript JSON reads use `scripts/json_io.js`; PowerShell-generated JSON is UTF-8 without BOM.
+- Shutdown requires `scripts/verify_shutdown_state.js` and a current permitted shutdown policy.
 
 ## XLSX output contract
 
-The workbook field order in this package is authoritative. `manual_review` begins with the same columns as `detail`; review-only fields follow afterward. New audit fields may be appended but must not reorder existing columns.
+The existing workbook field order is authoritative. `manual_review` begins with the same columns as `detail`; review-only fields follow. Phase 1.5 audit fields belong to JSON queue/audit artifacts and must not reorder existing XLSX columns.

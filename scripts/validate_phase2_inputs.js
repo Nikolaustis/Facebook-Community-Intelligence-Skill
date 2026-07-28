@@ -46,7 +46,7 @@ function assertObject(value, label) {
   const outReport = path.resolve(args['out-report'] || path.join(path.dirname(indexFile || process.cwd()), 'phase2_input_validation.json'));
   const report = {
     validation_kind: 'facebook_group_monitor_phase2_inputs',
-    version: '6.6.4',
+    version: '7.0.0',
     checked_at: new Date().toISOString(),
     ok: false,
     files: {},
@@ -69,6 +69,12 @@ function assertObject(value, label) {
       report.files.config = fileInfo(configFile);
       const config = readJsonFile(configFile);
       assertObject(config, 'task config');
+      if (config.phase15_name_prefilter !== undefined) {
+        assertObject(config.phase15_name_prefilter, 'task config.phase15_name_prefilter');
+      }
+      for (const key of ['aliases', 'sibling_titles', 'ip_roots', 'title_variant_overrides']) {
+        if (config[key] !== undefined) assertObject(config[key], `task config.${key}`);
+      }
     }
 
     if (shutdownPolicyFile) {

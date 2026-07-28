@@ -15,6 +15,19 @@
 - [ ] source query 与变体类型完整保存。
 - [ ] 深翻停止经过用户确认。
 
+## Phase 1.5
+
+- [ ] `phase15_prefilter_index.json` 在第二轮连接 Facebook 前生成或命中有效缓存。
+- [ ] `phase15_candidates/` 中每个游戏都有过滤后的独立队列。
+- [ ] 原始 `phase1_index.json` 和原候选 JSON 未被覆盖。
+- [ ] audit、rejected、review、manifest、progress 文件均存在。
+- [ ] source query 只有出现在群名中才放行。
+- [ ] seed、缺名和截断名保守放行。
+- [ ] IP root-only、兄弟-only 和 no-match 默认丢弃。
+- [ ] `GAG` 不命中 `GAG2/GAG 2/gags/gagged/9gag`。
+- [ ] 配置、本地译名和实际来源检索词的命中有审计字段。
+- [ ] 缓存指纹覆盖 index、candidate 文件元数据和相关配置。
+
 ## 第二轮
 
 - [ ] 群名预筛发生在 About/讨论页访问之前。
@@ -71,7 +84,14 @@
 - [ ] 接力启动经过实际进度健康检查。
 - [ ] 启动失败按配置重试并写入 `phase2_handoff_status.json`。
 
-## V6.6.4 关键检查
+## V7.0.0 关键检查
+
+- [ ] Phase 1.5 在浏览器详情采集前完成。
+- [ ] 第二轮 `stats` 包含 Phase 1.5 输入、保留、丢弃、缩减率、缓存命中和原因计数。
+- [ ] 旧的第二轮内联预筛仍启用。
+- [ ] `npm run phase15:test` 返回 15/15 通过。
+
+## V6.6.4 继承检查
 
 - [ ] 短拉丁别名使用完整词边界，不允许 `gag` 命中 `gags`、`gagged`、`9gag`。
 - [ ] 末尾带数字的别名兼容紧凑与分隔写法，例如 `GAG2`、`GAG 2`、`GAG-2`。

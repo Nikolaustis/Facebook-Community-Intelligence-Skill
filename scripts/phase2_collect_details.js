@@ -13,6 +13,7 @@ const {
   runSemanticRegionResolver,
   semanticAuditFields,
 } = require('./semantic_region_resolver');
+const { preparePhase15Index } = require('./name_relevance_prefilter');
 
 let emergencyFlush = null;
 
@@ -55,6 +56,121 @@ function scalarText(value) {
 
 function clean(s) {
   return scalarText(s).replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function normalizeConfiguredGateText(value) {
+  return stripDiacritics(clean(value))
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Number}]+/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function configuredGateTermMatches(text, term) {
+  const normalizedText = normalizeConfiguredGateText(text);
+  const normalizedTerm = normalizeConfiguredGateText(term);
+  if (!normalizedText || !normalizedTerm) return false;
+  const body = normalizedTerm
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((token) => escapeRegExp(token))
+    .join('\\s+');
+  if (!body) return false;
+  return new RegExp(`(^|[^\\p{Letter}\\p{Number}])${body}(?=$|[^\\p{Letter}\\p{Number}])`, 'iu').test(normalizedText);
+}
+
+function configuredGateHits(text, terms) {
+  return unique((Array.isArray(terms) ? terms : [])
+    .map((term) => clean(term))
+    .filter((term) => term && configuredGateTermMatches(text, term)));
+}
+
+function evaluateConfiguredThreeGateFilter(config, groupName, aboutText, snippet) {
+  const gate = config && config.three_gate_filter && typeof config.three_gate_filter === 'object'
+    ? config.three_gate_filter
+    : null;
+  if (!gate || !boolLike(gate.enabled, false)) {
+    return { enabled: false, decision: 'pass', region: '', reason: 'three_gate_filter_disabled' };
+  }
+
+  const evidenceText = `${clean(groupName)}\n${clean(aboutText)}\n${clean(snippet)}`;
+  const gameHits = configuredGateHits(evidenceText, gate.game_terms);
+  const gameExclusionHits = configuredGateHits(evidenceText, gate.game_exclusion_terms);
+  if (!gameHits.length) {
+    return {
+      enabled: true,
+      decision: 'drop',
+      region: '',
+      reason: 'gate_a_missing_target_game_identity',
+      game_hits: [],
+      game_exclusion_hits: gameExclusionHits,
+      fly_hits: [],
+      medium_fly_hits: [],
+      region_hits: [],
+    };
+  }
+
+  const strongFlyHits = configuredGateHits(evidenceText, gate.strong_fly_terms);
+  const mediumFlyHits = configuredGateHits(evidenceText, gate.medium_fly_terms);
+  const minimumMediumFlyHits = Math.max(2, Number(gate.minimum_medium_fly_hits || 2));
+  if (!strongFlyHits.length && mediumFlyHits.length < minimumMediumFlyHits) {
+    return {
+      enabled: true,
+      decision: 'drop',
+      region: '',
+      reason: 'gate_b_missing_fly_identity',
+      game_hits: gameHits,
+      game_exclusion_hits: gameExclusionHits,
+      fly_hits: strongFlyHits,
+      medium_fly_hits: mediumFlyHits,
+      region_hits: [],
+    };
+  }
+
+  const countryEvidence = gate.country_evidence && typeof gate.country_evidence === 'object'
+    ? gate.country_evidence
+    : {};
+  const regionMatches = [];
+  const languageOnlyMatches = [];
+  for (const [region, specValue] of Object.entries(countryEvidence)) {
+    const spec = specValue && typeof specValue === 'object' ? specValue : {};
+    const strongHits = configuredGateHits(evidenceText, [
+      ...(Array.isArray(spec.strong_terms) ? spec.strong_terms : []),
+      ...(Array.isArray(spec.city_terms) ? spec.city_terms : []),
+      ...(Array.isArray(spec.region_terms) ? spec.region_terms : []),
+    ]);
+    const languageHits = configuredGateHits(evidenceText, spec.language_only_terms);
+    if (strongHits.length) regionMatches.push({ region: normalizeRegionOutput(region), hits: strongHits });
+    if (languageHits.length) languageOnlyMatches.push({ region: normalizeRegionOutput(region), hits: languageHits });
+  }
+  const broadRegionHits = configuredGateHits(evidenceText, gate.ambiguous_region_terms);
+
+  const common = {
+    enabled: true,
+    game_hits: gameHits,
+    game_exclusion_hits: gameExclusionHits,
+    fly_hits: strongFlyHits,
+    medium_fly_hits: mediumFlyHits,
+    region_hits: regionMatches.flatMap((item) => item.hits.map((hit) => `${item.region}:${hit}`)),
+    language_only_region_hits: languageOnlyMatches.flatMap((item) => item.hits.map((hit) => `${item.region}:${hit}`)),
+    ambiguous_region_hits: broadRegionHits,
+  };
+
+  const distinctRegions = unique(regionMatches.map((item) => item.region).filter(Boolean));
+  if (distinctRegions.length > 1) {
+    return { ...common, decision: 'manual_review', region: '', reason: 'gate_c_multiple_country_identities' };
+  }
+  if (distinctRegions.length === 1) {
+    if (gameExclusionHits.length) {
+      return { ...common, decision: 'manual_review', region: distinctRegions[0], reason: 'gate_a_target_and_excluded_pokemon_product_both_present' };
+    }
+    return { ...common, decision: 'pass', region: distinctRegions[0], reason: 'all_three_gates_passed' };
+  }
+  if (languageOnlyMatches.length || broadRegionHits.length) {
+    return { ...common, decision: 'manual_review', region: '', reason: 'gate_c_language_or_multicountry_region_only' };
+  }
+  return { ...common, decision: 'drop', region: '', reason: 'gate_c_missing_country_identity' };
 }
 
 function readJsonSafe(file) {
@@ -4041,9 +4157,23 @@ function resolveCollisions(rows) {
   const semanticRegionCache = new SemanticRegionCache(semanticRegionResolver.cache_file);
 
   const index = readJsonFile(indexFile);
-  const gameEntries = Array.isArray(index.games) ? index.games : [];
+  const phase15Result = preparePhase15Index({
+    indexFile,
+    index,
+    config,
+    outDir: path.dirname(indexFile),
+    progressFile: outProgress,
+    force: boolLike(args['phase15-force'], false),
+    overrides: {
+      enabled: args['phase15-name-prefilter'] === undefined
+        ? undefined
+        : boolLike(args['phase15-name-prefilter'], true),
+    },
+  });
+  const activeIndex = phase15Result.index || index;
+  const gameEntries = Array.isArray(activeIndex.games) ? activeIndex.games : [];
   if (!gameEntries.length) {
-    console.error('phase1_index.json does not contain any game entries.');
+    console.error('phase1_index.json does not contain any game entries after Phase 1.5 name prefiltering.');
     process.exit(1);
   }
 
@@ -4075,6 +4205,10 @@ function resolveCollisions(rows) {
   const completionBase = {
     run_dir: path.dirname(indexFile),
     index_file: indexFile,
+    phase15_prefilter_index_file: phase15Result.index_file || indexFile,
+    phase15_prefilter_audit_file: phase15Result.audit_file || '',
+    phase15_prefilter_rejected_file: phase15Result.rejected_file || '',
+    phase15_prefilter_review_file: phase15Result.review_file || '',
     out_xlsx: outXlsx,
     out_summary: outSummary,
     close_chrome_after_report: closeChromeAfterReport,
@@ -4091,6 +4225,18 @@ function resolveCollisions(rows) {
     const discussionLanguageCache = new Map();
     const stats = {
       total_candidates: 0,
+      phase15_name_prefilter_enabled: phase15Result.enabled ? 1 : 0,
+      phase15_name_prefilter_cache_hit: phase15Result.cache_hit ? 1 : 0,
+      phase15_input_candidates: Number((phase15Result.audit || {}).input_candidates || 0),
+      phase15_kept_candidates: Number((phase15Result.audit || {}).kept_candidates || 0),
+      phase15_rejected_candidates: Number((phase15Result.audit || {}).rejected_candidates || 0),
+      phase15_review_candidates: Number((phase15Result.audit || {}).review_candidates || 0),
+      phase15_reduction_rate: Number((phase15Result.audit || {}).reduction_rate || 0),
+      phase15_prefilter_index_file: phase15Result.index_file || indexFile,
+      phase15_prefilter_audit_file: phase15Result.audit_file || '',
+      phase15_prefilter_rejected_file: phase15Result.rejected_file || '',
+      phase15_prefilter_review_file: phase15Result.review_file || '',
+      phase15_reason_counts: (phase15Result.audit || {}).reason_counts || {},
       skipped_card_lt_100: 0,
       phase2_name_prefilter_enabled: phase2NamePrefilter.enabled ? 1 : 0,
       phase2_name_prefilter_checked: 0,
@@ -4100,6 +4246,12 @@ function resolveCollisions(rows) {
       phase2_name_prefilter_skipped_no_match: 0,
       phase2_name_prefilter_skipped_manual_review: 0,
       about_avoided_by_name_prefilter: 0,
+      three_gate_checked: 0,
+      three_gate_passed: 0,
+      three_gate_manual_review: 0,
+      three_gate_dropped_gate_a: 0,
+      three_gate_dropped_gate_b: 0,
+      three_gate_dropped_gate_c: 0,
       about_attempted: 0,
       about_fetches: 0,
       about_cache_hits: 0,
@@ -4572,6 +4724,25 @@ function resolveCollisions(rows) {
         const aboutText = about.text;
         const aboutLanguageText = about.language_text || '';
         const candidateGroupName = clean(c.group_name || about.group_name || '');
+        const threeGateResult = evaluateConfiguredThreeGateFilter(config, candidateGroupName, aboutText, c.snippet);
+        if (threeGateResult.enabled) {
+          stats.three_gate_checked++;
+          if (threeGateResult.decision === 'pass') stats.three_gate_passed++;
+          else if (threeGateResult.decision === 'manual_review') stats.three_gate_manual_review++;
+          else if (/gate_a_/.test(threeGateResult.reason || '')) stats.three_gate_dropped_gate_a++;
+          else if (/gate_b_/.test(threeGateResult.reason || '')) stats.three_gate_dropped_gate_b++;
+          else stats.three_gate_dropped_gate_c++;
+        }
+        if (threeGateResult.enabled && threeGateResult.decision === 'drop') {
+          stats.dropped_not_relevant++;
+          markCandidateCheckpoint('three_gate_dropped_not_relevant', {
+            three_gate_reason: threeGateResult.reason || '',
+            three_gate_game_hits: (threeGateResult.game_hits || []).join('|'),
+            three_gate_fly_hits: [...(threeGateResult.fly_hits || []), ...(threeGateResult.medium_fly_hits || [])].join('|'),
+            three_gate_region_hits: (threeGateResult.region_hits || []).join('|'),
+          });
+          continue;
+        }
         const groupSizeAbout = extractGroupSize(aboutText);
         const groupSize = groupSizeAbout !== '' ? groupSizeAbout : cardMembers;
         const todayPosts = extractTodayPosts(aboutText);
@@ -4619,6 +4790,11 @@ function resolveCollisions(rows) {
           __matched_phrase: match.phrase || '',
           __negative_hit: match.negative_hit || '',
           __review_reason: match.review_reason || '',
+          __three_gate_decision: threeGateResult.decision || '',
+          __three_gate_reason: threeGateResult.reason || '',
+          __three_gate_game_hits: (threeGateResult.game_hits || []).join('|'),
+          __three_gate_fly_hits: [...(threeGateResult.fly_hits || []), ...(threeGateResult.medium_fly_hits || [])].join('|'),
+          __three_gate_region_hits: (threeGateResult.region_hits || []).join('|'),
           __source_query: c.source_query || (Array.isArray(c.source_queries) ? c.source_queries.join('|') : ''),
           __source_queries: Array.isArray(c.source_queries) ? c.source_queries.join('|') : (c.source_query || ''),
           __query_variant_type: c.query_variant_type || (Array.isArray(c.query_variant_types) ? c.query_variant_types.join('|') : ''),
@@ -4631,10 +4807,15 @@ function resolveCollisions(rows) {
           ...semanticAuditFields(regionResolution.semantic_region),
           ...geocoderAuditFields(regionResolution.external_geocoder),
         };
+        if (threeGateResult.enabled && threeGateResult.region) {
+          row.region = threeGateResult.region;
+          row.__region_source = 'configured_three_gate_filter';
+          row.__region_keyword_hits = (threeGateResult.region_hits || []).join('|');
+        }
 
         const thresholdEvaluation = evaluateThreshold(row, thresholdSpec);
 
-        if (match.manual_review) {
+        if (match.manual_review || (threeGateResult.enabled && threeGateResult.decision === 'manual_review')) {
           stats.manual_review_candidates++;
           if (!thresholdEvaluation.pass_group_size) {
             stats.dropped_threshold++;
@@ -4668,10 +4849,10 @@ function resolveCollisions(rows) {
             [formulaFields.growthRate]: '',
             language_signal: row.language_signal || '',
             about_location: row.__region_location || '',
-            match_type: match.type,
+            match_type: threeGateResult.decision === 'manual_review' ? 'configured_three_gate_manual_review' : match.type,
             matched_phrase: match.phrase || '',
             negative_hit: match.negative_hit || '',
-            review_reason: match.review_reason || '',
+            review_reason: threeGateResult.decision === 'manual_review' ? threeGateResult.reason : (match.review_reason || ''),
             source_query: row.__source_query,
             query_variant_type: row.__query_variant_type,
             source_is_seed_url: row.__source_is_seed_url,
@@ -4746,6 +4927,11 @@ function resolveCollisions(rows) {
         row.__region_location = aboutLocationText;
         Object.assign(row, semanticAuditFields(regionResolution.semantic_region));
         Object.assign(row, geocoderAuditFields(regionResolution.external_geocoder));
+        if (threeGateResult.enabled && threeGateResult.region) {
+          row.region = threeGateResult.region;
+          row.__region_source = 'configured_three_gate_filter';
+          row.__region_keyword_hits = (threeGateResult.region_hits || []).join('|');
+        }
 
         if (allowedLanguageSignals && allowedLanguageSignals.size && !allowedLanguageSignals.has(row.language_signal)) {
           stats.dropped_lang_region++;

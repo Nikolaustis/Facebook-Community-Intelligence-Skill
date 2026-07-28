@@ -21,6 +21,18 @@
   },
   "threshold": 10,
   "phase2_auto_resume": true,
+  "phase15_name_prefilter": {
+    "enabled": true,
+    "reuse_cache": true,
+    "keep_missing_or_truncated_names": true,
+    "keep_ip_root_only": false,
+    "keep_sibling_only_for_manual_review": false,
+    "use_source_queries": true,
+    "minimum_query_compact_length": 3,
+    "write_rejected_candidates": true,
+    "write_review_candidates": true,
+    "max_examples_per_reason": 20
+  },
   "phase2_name_prefilter": {
     "enabled": true,
     "allow_manual_review_candidates": true,

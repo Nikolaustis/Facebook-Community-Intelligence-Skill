@@ -1,7 +1,7 @@
 {
-  "name": "fb-group-monitor-skill-v6-6-4",
-  "version": "6.6.4",
-  "description": "Two-stage Facebook game-group monitor with safe short-alias boundaries, sibling alias exclusion, same-business-region preservation, isolated supervisor logs, verified Windows startup, multi-game output, Node-verified shutdown, API-first semantic adjudication, BOM-safe inputs, durable recovery, and prompt-driven shutdown.",
+  "name": "fb-group-monitor-skill-v7-0-0",
+  "version": "7.0.0",
+  "description": "Two-stage Facebook game-group monitor with an explicit Phase 1.5 name-relevance queue prefilter, safe short-alias boundaries, sibling-title suppression, source-query auditing, durable recovery, and verified Windows execution.",
   "private": true,
   "scripts": {
     "login": "powershell -ExecutionPolicy Bypass -File .\\scripts\\open_chrome_9222.ps1",
@@ -25,7 +25,9 @@
     "phase2:validate": "node .\\scripts\\validate_phase2_inputs.js",
     "phase2:handoff": "powershell -ExecutionPolicy Bypass -File .\\scripts\\queue_phase2_after_current.ps1",
     "semantic:clear-legacy-codex-env": "powershell -ExecutionPolicy Bypass -File .\\scripts\\clear_legacy_codex_cli_path.ps1",
-    "phase2:verify-shutdown": "node .\\scripts\\verify_shutdown_state.js"
+    "phase2:verify-shutdown": "node .\\scripts\\verify_shutdown_state.js",
+    "phase15": "node ./scripts/phase15_prefilter_candidates.js",
+    "phase15:test": "node ./tests/test_phase15_name_prefilter.js"
   },
   "dependencies": {
     "playwright": "^1.59.1",

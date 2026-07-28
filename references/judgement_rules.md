@@ -8,10 +8,20 @@
 - 候选必须保留 `source_query`、`query_variant_type`、`source_game_name`、`source_is_seed_url` 等审计信息。
 - 到达深翻停止条件后必须等待用户确认再进入第二轮。
 
+## Phase 1.5 群名预筛
+
+- 必须在第二轮连接 Facebook 详情页之前遍历全部第一轮候选。
+- 同时检查游戏标题、配置别名、配置扩展检索词、候选实际 `source_query/source_queries`、安全标题变体和兄弟游戏证据。
+- `source_query` 只有实际出现在群名中才可作为放行证据；Facebook 返回搜索结果本身不构成相关性。
+- seed URL、缺失群名和明显截断群名保守放行，等待页面核验。
+- IP root-only、兄弟游戏-only、无标题/别名/检索词证据默认在 Phase 1.5 丢弃。
+- 较短目标证据若只嵌在更具体兄弟标题中必须丢弃；两个完整游戏标题独立出现时允许多游戏保留。
+- 原始候选文件不得覆盖；必须生成 filtered index、per-game filtered queue、audit、rejected、review、manifest 和 progress。
+
 ## 第二轮预筛与采集
 
 - 卡片成员数低于 100 时直接跳过。
-- 第一轮已有完整群名时，先匹配目标标题、别名、受控变体、兄弟标题和 IP root；明显无关项不打开 About 或讨论页。
+- Phase 1.5 缩减队列进入第二轮后，仍执行原有逐候选群名预筛作为第二道防线。
 - seed URL、群名缺失或明显截断时继续打开页面核验。
 - 预筛通过后仍需执行完整相关性、规模、活跃度、语言、地区和跨游戏冲突判断。
 - About 抓取失败且核心指标不可得时不得进入正式输出。

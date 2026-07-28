@@ -1,71 +1,101 @@
-# Facebook Group Monitor Skill V6.6.4
+# Facebook Group Monitor Skill V7.0.0
 
-V6.6.4 is a cumulative Windows-oriented Facebook game-group monitoring package. This release fixes two deterministic classification defects found in the Grow a Garden / Grow a Garden 2 run: loss of a valid same-business-region result, and unsafe short-alias substring matching.
+V7.0.0 adds a true **Phase 1.5** between first-round Facebook search and second-round page collection. The previous release performed a lightweight name check inside the phase-2 loop; V7 first traverses the entire phase-1 queue offline, removes obvious search noise, writes a reduced queue and audit files, and only then connects to Facebook detail pages.
 
-## Main workflow
+## Why this change
 
-1. Phase 1 collects group candidates and source-query metadata.
-2. Phase 2 validates its index, task configuration, shutdown policy, and candidate files before launch.
-3. Irrelevant first-round group names are skipped before opening About or discussion pages.
-4. Target titles, aliases, controlled variants, sibling games, and IP-root-only matches are evaluated separately.
-5. Language and region use deterministic evidence first, then configured APIs, a verified standalone Codex CLI, local rules, and controlled GeoNames.
-6. A complete checkpoint is saved after every candidate.
-7. `detail` and `manual_review` retain the authoritative XLSX field order in this package.
-8. Legitimate multi-game groups are retained once for each matched target game.
-9. Chrome closes after verified finalization. Scheduled tasks remove themselves. Shutdown defaults to disabled and follows only the current user instruction.
+The supplied historical workbook contains 7,501 retained rows across 62 games. Approximately 96.8% of retained names contain the canonical title after safe punctuation/spacing normalization. Most remaining legitimate cases are explained by:
 
-## Same-business-region preservation
+- configured acronyms or expanded search terms;
+- localized titles;
+- final-token singular/plural variation;
+- removal of connector words while preserving the full identifying title;
+- punctuation or spacing differences such as `GAG2`, `GAG 2`, and `GAG-2`.
 
-When several explicit countries belong to the same business region, their combined result is authoritative. For example:
+The workbook also exposes legacy false-positive patterns, especially short aliases inside longer words or numbered sibling titles. V7 therefore uses boundary-aware and sibling-aware matching rather than raw substring filtering.
 
-```text
-Laos + Thailand
-→ LA + TH
-→ SEA
-→ source: country_keyword_and_flag_same_business_region
-```
+## Workflow
 
-This result is not treated as an unresolved cross-region conflict and does not require About-location adjudication.
+1. Phase 1 collects candidates and source-query metadata.
+2. Input validation checks the original index, candidate files, config, and shutdown policy.
+3. Phase 1.5 builds a reduced queue from first-round group names.
+4. Phase 2 opens About/discussion pages only for retained or inconclusive candidates.
+5. Existing relevance, scale, activity, language, region, collision, checkpoint, finalization, and shutdown rules continue unchanged.
 
-## Short-alias matching
+## Phase 1.5 outputs
 
-Short Latin aliases use token boundaries instead of raw compact substring matching.
+Each run directory receives:
 
 ```text
-GAG       → valid Grow a Garden alias
-GAGS      → not GAG
-GAGGED    → not GAG
-9GAG      → not GAG
-GAG2      → not GAG; valid GAG2
-GAG 2     → not GAG; valid GAG2
+phase15_prefilter_index.json          filtered index used internally by phase 2
+phase15_candidates/                   per-game filtered candidate files
+phase15_name_prefilter_audit.json     aggregate and per-game counts/reasons/examples
+phase15_name_prefilter_rejected.json  complete rejected-candidate audit
+phase15_name_prefilter_review.json    seed/missing/truncated or configured review candidates
+phase15_name_prefilter_manifest.json  deterministic cache fingerprint
+phase15_name_prefilter_progress.json  Phase 1.5 progress and completion state
 ```
 
-Sibling exclusion includes canonical titles, aliases, and configured title variants. This prevents `Grow a Garden 2`, `GAG2`, or `GAG 2` from being attributed to `Grow a Garden` merely because the shorter string appears inside the longer one.
+Original phase-1 files are never overwritten.
 
-The multi-game rule remains unchanged. A name that independently and explicitly contains two complete target titles may still be retained under both games.
+## Default filtering policy
 
-## Resume protection
+| Evidence in first-round group name | Phase 1.5 action |
+|---|---|
+| Canonical title / safe spacing variant | Keep |
+| Configured alias or expanded query | Keep |
+| Candidate's actual source query | Keep only when it appears in the name and is not solely a sibling title/alias |
+| Seed URL | Keep for page verification |
+| Missing or visibly truncated name | Keep as inconclusive |
+| IP root only | Reject by default |
+| Sibling title only | Reject by default |
+| Shorter title only inside a more-specific sibling | Reject |
+| No title/alias/query evidence | Reject |
 
-When resuming a non-finalized checkpoint, rows previously accepted through a strong group-name title match are rechecked against the current title rules. Invalid legacy rows are removed from staged output and counted in:
+## Configuration
 
-```text
-phase2_resume_title_rows_revalidated
-phase2_resume_title_rows_removed
-phase2_resume_title_rows_removed_examples
+```json
+"phase15_name_prefilter": {
+  "enabled": true,
+  "reuse_cache": true,
+  "keep_missing_or_truncated_names": true,
+  "keep_ip_root_only": false,
+  "keep_sibling_only_for_manual_review": false,
+  "use_source_queries": true,
+  "minimum_query_compact_length": 3,
+  "write_rejected_candidates": true,
+  "write_review_candidates": true,
+  "max_examples_per_reason": 20
+}
 ```
 
-## Existing runtime protections
+The existing `phase2_name_prefilter` remains active as a second defensive check.
 
-- Supervisor and phase-2 child logs use separate files.
-- Startup success requires a live child and fresh readable progress.
-- Shutdown verification uses Node.js for the full checkpoint.
-- The global `CODEX_CLI_PATH` variable is ignored.
-- JavaScript JSON reads are BOM-safe.
-- PowerShell-generated JSON uses UTF-8 without BOM.
+## Commands
+
+```powershell
+npm run phase15 -- --index ".\runs\<run>\phase1_index.json" --config ".\config\task.json"
+npm run phase15:test
+npm run phase2 -- --index ".\runs\<run>\phase1_index.json" --config ".\config\task.json"
+```
+
+`phase2_collect_details.js` automatically runs or reuses Phase 1.5 before connecting to Facebook, so scheduled/background workflows require no manual extra step.
+
+## Preserved protections
+
+- Safe short-alias and numbered-continuation boundaries.
+- Sibling-title/alias/configured-variant exclusion.
+- `group_url + game_name` multi-game uniqueness.
+- Same-business-region preservation.
+- Complete checkpoint after every candidate.
+- Supervisor/child log isolation and startup health verification.
+- API-first semantic resolver chain and controlled GeoNames fallback.
+- BOM-safe JSON handling.
+- Node-verified shutdown and default no-shutdown behavior.
 
 ## Installation
 
-Extract the overlay into the existing Skill root and replace matching files. Preserve:
+Stop active monitor processes, extract the archive into the existing Skill root, and replace matching files. Preserve:
 
 ```text
 runs/
