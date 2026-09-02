@@ -41,8 +41,7 @@ node_modules/
 config/*.local.json
 ```
 
-5. Remove obsolete duplicate files listed in the accompanying upgrade instructions.
-6. Run:
+5. Run:
 
 ```powershell
 npm ci
