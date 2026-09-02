@@ -1,1 +1,23 @@
+node_modules/
+runs/
+tmp/
+work/
+logs/
+*.log
+
+.env
+.env.*
+config/*.local.json
+config/*secret*.json
+config/*credential*.json
+
+phase1_diagnostics/
+_backup_*/
+
+.DS_Store
+Thumbs.db
+
+*.xlsx
+*.xls
+shutdown_preflight_verification.json
 
