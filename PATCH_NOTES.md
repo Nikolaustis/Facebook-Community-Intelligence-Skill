@@ -1,42 +1,27 @@
-# V7.1.0 Patch Notes
+# V7.2.0 Patch Notes
 
-- Fixed Phase 1.5 false rejection when a Latin game title or alias is directly adjacent to Chinese, Thai, Lao, Arabic, Hangul, Cyrillic, or another non-Latin script.
-- Replaced Unicode-wide letter boundaries with script-aware Latin-letter/number boundaries for Latin/digit phrases.
-- Preserved strict continuation guards: Latin suffixes, plural extensions, numbered continuations, and more-specific sibling titles remain blocked.
-- Added Unicode format-control separators, including zero-width spaces, between title tokens.
-- Added `__phase15_prefilter_match_boundary_mode` plus aggregate/per-game `match_boundary_mode_counts` to the audit output.
-- Bumped the Phase 1.5 cache schema to `7.1.0`; V7.0.x reduced queues are rebuilt automatically.
-- Expanded Phase 1.5 regression coverage from 15 to 28 cases.
-- Replayed the uploaded 621 rejected records: 141 were safely recovered, including 104 literal full-title mixed-script cases and 37 compact/zero-width formatting variants; 480 remained rejected.
-- Preserved V7.0.1 Phase 1 false-zero recovery and all existing Phase 2, region, checkpoint, XLSX, and shutdown behavior.
-
----
-
-# V7.0.1 Patch Notes
-
-- Fixed false-zero Phase 1 runs where manual Facebook search showed groups but `collectRound()` returned none.
-- Replaced the single-node `a.innerText` title assumption with canonical-URL grouping and multi-source name extraction.
-- Removed Phase 1 hard rejection based on query-token presence; token matching is now stored as `phase1_query_token_match` for audit.
-- Added a real result-readiness wait and alternate Facebook Groups search-route recovery.
-- Added nested-scroll-container scrolling in addition to document scrolling.
-- Added explicit `LOGIN_OR_CHECKPOINT_SIGNAL`, `FACEBOOK_TEMPORARY_ERROR`, and `ZERO_CANDIDATES_AFTER_ROUTE_FALLBACK` stop reasons.
-- Added per-round `raw_group_link_count`, selected search URL, route-fallback, and page-signal fields.
-- Added automatic zero-result JSON, HTML, and screenshot diagnostics under `phase1_diagnostics/`.
-- Preserved V7.0.0 Phase 1.5 filtering, title boundaries, sibling suppression, checkpointing, semantic resolution, XLSX schema, and shutdown controls.
+- Fixed localized accessibility-label pollution such as `的头像` being written into `group_name`.
+- Added `scripts/group_name_utils.js` with multilingual avatar/profile-picture wrapper removal, source-aware scoring, and Phase 2 name selection.
+- Visible headings and visible links now outrank `aria-label` and image `alt`; accessibility labels remain fallback evidence only.
+- Phase 1 records `phase1_name_source`, `phase1_name_raw`, `phase1_name_normalization`, `phase1_name_score`, and `phase1_query_token_match`.
+- Phase 2 sanitizes legacy Phase 1 names before prefiltering, prefers a valid About-page heading, and recalculates language from the cleaned name and Facebook evidence.
+- Non-finalized checkpoint rows with avatar-label pollution are sanitized on resume; false Chinese labels are conservatively recalculated.
+- `finalize_partial_xlsx.js` now sanitizes avatar-label pollution during recovery finalization.
+- Added `repair_avatar_name_pollution_xlsx.js` for already generated workbooks; it writes a new workbook plus an audit sheet and never overwrites the input.
+- Preserved V7.0.1 dual-route Phase 1 recovery and diagnostics.
+- Preserved V7.1.0 script-aware boundaries, including English titles directly adjacent to Chinese, Thai, Lao, Arabic, Korean, and other non-Latin scripts while continuing to reject Latin/digit continuations such as `GAGS`, `GAG2`, `DefenseX`, and `99100`.
 
 ---
 
-# V7.0.0 Patch Notes
+# V6.6.4 Patch Notes
 
-- Added an explicit offline **Phase 1.5 group-name prefilter** before phase-2 Facebook page collection.
-- Phase 1.5 traverses every first-round candidate and creates a reduced per-game queue before About/discussion pages are opened.
-- Added source-query-aware matching using `source_query` and merged `source_queries`; a Facebook search hit is retained only when the relevant query/title evidence appears in the group name, and a sibling-owned query cannot override sibling exclusion.
-- Added historical-safe full-title variants derived from the supplied 7,501-row workbook: punctuation/spacing normalization, final-token singularization, and conservative connector-word elision.
-- Added complete Phase 1.5 artifacts: filtered index, per-game queues, audit, rejected candidates, review candidates, cache manifest, and progress file.
-- Added deterministic cache reuse based on original index, candidate-file metadata, and all relevance-related configuration.
-- Defaulted IP-root-only and sibling-only candidates to rejection at Phase 1.5 while preserving seed URLs and missing/truncated names for page verification.
-- Preserved safe short-alias boundaries: `GAG` cannot match `gags`, `gagged`, `9gag`, `GAG2`, or `GAG 2`; `GAG2` accepts compact and separated forms.
-- Preserved legitimate multi-game groups when each target has independent title evidence.
-- Retained the prior in-loop phase-2 name prefilter as a second defensive layer.
-- Added `npm run phase15`, `npm run phase15:test`, and 15 regression cases.
-- Preserved all V6.6.4 region, semantic-provider, checkpoint, supervisor-log, XLSX, multi-game, and shutdown protections.
+- Fixed same-business-region evidence loss when country keywords and flag emoji independently collapse several countries into one business region.
+- A group name containing Laos and Thailand evidence now resolves directly to `SEA` with source `country_keyword_and_flag_same_business_region` instead of being cleared by the multi-region adjudication path.
+- Replaced unrestricted compact substring matching for short Latin aliases with token-boundary matching.
+- Short aliases such as `GAG` no longer match `gags`, `gagged`, `9gag`, `GAG2`, or `GAG 2`.
+- Alphanumeric aliases such as `GAG2` accept both compact and separated forms, including `GAG2`, `GAG 2`, and punctuation-separated equivalents.
+- Sibling-title exclusion now includes sibling aliases and configured title variants, not only canonical sibling titles.
+- `Grow a Garden 2`, `GAG2`, and `GAG 2` therefore exclude a false `Grow a Garden` match while remaining valid for `Grow a Garden 2`.
+- A group that explicitly contains two genuinely distinct titles can still be retained once under each game under the existing `group_url + game_name` rule.
+- Non-finalized checkpoints are conservatively revalidated on resume. Previously staged rows whose strong group-name match is invalid under the current title rules are removed and counted in resume audit statistics.
+- Preserved the authoritative XLSX field order, supervisor-log isolation, multi-game output, Node-verified shutdown, API-first semantic chain, BOM-safe JSON, and prompt-driven shutdown behavior.

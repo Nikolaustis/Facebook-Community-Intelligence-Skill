@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
 const { readJsonFile } = require('./json_io');
+const { sanitizeGroupName } = require('./group_name_utils');
+const { inferLanguageFromCleanName } = require('./repair_avatar_name_pollution_xlsx');
 
 function parseArgs(argv) {
   const out = {};
@@ -160,7 +162,26 @@ function getGroupId(groupUrl) {
   return match ? match[1] : '';
 }
 
+function normalizeAvatarPollutionFields(row) {
+  const out = { ...row };
+  const normalized = sanitizeGroupName(out.group_name || '', { source: out.__group_name_source || 'finalizer' });
+  if (!normalized.changed || !normalized.clean_name) return out;
+  const oldLanguage = String(out.language || out.language_signal || '').trim();
+  out.group_name = normalized.clean_name;
+  if (oldLanguage === 'Chinese') {
+    const inferred = inferLanguageFromCleanName(normalized.clean_name, out.game_name || '', oldLanguage);
+    out.language = inferred;
+    out.language_signal = inferred;
+  }
+  out.__group_name_normalization = Array.from(new Set([
+    ...(String(out.__group_name_normalization || '').split('|').filter(Boolean)),
+    ...normalized.reasons,
+  ])).join('|');
+  return out;
+}
+
 function normalizeManualReviewRow(row) {
+  row = normalizeAvatarPollutionFields(row);
   const out = {};
   for (const field of fields) out[field] = row[field] ?? '';
   out.snapshot_date = row.snapshot_date ?? '';
@@ -322,6 +343,7 @@ if (!rawRows.length && fs.existsSync(src)) {
   sourceKind = 'partial_xlsx';
 }
 const finalRows = rawRows.map((row) => {
+  row = normalizeAvatarPollutionFields(row);
   const out = {};
   for (const field of fields) out[field] = row[field] ?? '';
   out.snapshot_date = snapshotDate;

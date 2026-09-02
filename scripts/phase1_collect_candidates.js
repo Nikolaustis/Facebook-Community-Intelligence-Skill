@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { chromium } = require('playwright');
 const { createCodexProgressReporter, parseProgressReportEveryMinutes } = require('./progress_reporter');
 const { readJsonFile, readTextAuto } = require('./json_io');
+const { sanitizeGroupName, scoreNameCandidate, chooseBestNameCandidate } = require('./group_name_utils');
 
 function clean(s) {
   return (s || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
@@ -222,256 +223,126 @@ function buildSeedCandidates(gameName, config) {
 
 async function collectRound(page, gameName, sourceQuery, variantType) {
   const queryTokens = Array.from(new Set([...meaningfulTokens(gameName), ...meaningfulTokens(sourceQuery)]));
-  return page.evaluate(({ queryTokens, sourceQuery, variantType, gameName }) => {
+  const raw = await page.evaluate(({ queryTokens, sourceQuery, variantType, gameName }) => {
     const main = document.querySelector('div[role="main"]') || document.body;
-    const cleanText = (s) => (s || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
-    const normalize = (s) => cleanText(s).toLowerCase().replace(/[^a-z0-9]+/g, ' ');
-    const memberSignal = /members?|位成员|位成員|成員|成员|thành viên|สมาชิก|anggota|membros?|miembros?|membres?|mitglieder|участник|member/i;
-    const uiOnlySignal = /^(join|joined|invite|share|visit|view group|see all|public group|private group|visible|hidden|加入|已加入|邀请|邀請|分享|查看小组|查看社团|公開社團|私人社團|公开小组|私密小组)$/i;
-    const out = [];
-
-    const canonicalGroupUrl = (rawHref) => {
+    const normalizeText = (value) => String(value || '')
+      .normalize('NFKC')
+      .replace(/\u00a0/g, ' ')
+      .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const normalizeSearch = (value) => normalizeText(value).toLowerCase().replace(/[^a-z0-9]+/g, ' ');
+    const canonicalGroupUrl = (value) => {
       try {
-        const u = new URL(rawHref || '', location.href);
+        const u = new URL(value || '', location.href);
         if (!/(^|\.)facebook\.com$/i.test(u.hostname)) return '';
-        const m = u.pathname.match(/^\/groups\/([^/?#]+)/i);
-        if (!m) return '';
-        const id = decodeURIComponent(m[1] || '').trim();
-        if (!id || /^(search|discover|feed|joins|create|notifications)$/i.test(id)) return '';
-        return `https://www.facebook.com/groups/${encodeURIComponent(id).replace(/%2F/gi, '/')}`;
-      } catch (_e) {
+        const parts = u.pathname.split('/').filter(Boolean);
+        const groupIndex = parts.findIndex((x) => x.toLowerCase() === 'groups');
+        const identity = groupIndex >= 0 ? parts[groupIndex + 1] : '';
+        if (!identity || /^(?:search|feed|discover|create|joins|notifications)$/i.test(identity)) return '';
+        if (parts.slice(groupIndex + 2).some((x) => /^(?:posts?|permalink|media|media_set|photos?|videos?|events?|files?|about|discussion)$/i.test(x))) {
+          // Keep the group root even when Facebook links a child page.
+        }
+        return `${u.origin}/groups/${identity}`.replace(/\/+$/, '');
+      } catch (_err) {
         return '';
       }
     };
-
-    const findCard = (node) => {
-      let cur = node;
-      let best = node?.parentElement || null;
-      for (let i = 0; i < 12 && cur && cur !== main.parentElement; i++) {
-        const role = cleanText(cur.getAttribute?.('role'));
-        const text = cleanText(cur.innerText || cur.textContent || '');
-        if (role === 'article' || role === 'listitem') return cur;
-        if (text.length >= 12 && text.length <= 5000 && memberSignal.test(text)) best = cur;
-        cur = cur.parentElement;
+    const sourcePriority = {
+      visible_heading: 120,
+      visible_anchor: 110,
+      same_url_visible_anchor: 108,
+      card_heading: 105,
+      card_text: 92,
+      title_attribute: 80,
+      image_alt: 58,
+      aria_label: 35,
+    };
+    const nameCandidates = (card, rootUrl, rootAnchor) => {
+      const items = [];
+      const add = (value, source, sameUrl = false) => {
+        const txt = normalizeText(value);
+        if (!txt || txt.length < 2 || txt.length > 220) return;
+        items.push({ value: txt, source, same_url: sameUrl, browser_score: (sourcePriority[source] || 50) + (sameUrl ? 8 : 0) });
+      };
+      for (const el of Array.from(card?.querySelectorAll('h1, h2, h3, h4, strong, span[dir="auto"]') || [])) {
+        add(el.innerText || el.textContent, /^H[1-4]$/.test(el.tagName || '') ? 'visible_heading' : 'card_heading');
       }
-      return best || node?.parentElement || main;
+      for (const a of Array.from(card?.querySelectorAll('a[href]') || [])) {
+        const same = canonicalGroupUrl(a.href || a.getAttribute('href')) === rootUrl;
+        if (same) add(a.innerText || a.textContent, a === rootAnchor ? 'visible_anchor' : 'same_url_visible_anchor', true);
+        if (same) add(a.getAttribute('title'), 'title_attribute', true);
+        if (same) add(a.getAttribute('aria-label'), 'aria_label', true);
+        if (same) {
+          const img = a.querySelector('img');
+          if (img) add(img.getAttribute('alt'), 'image_alt', true);
+        }
+      }
+      add(rootAnchor?.innerText || rootAnchor?.textContent, 'visible_anchor', true);
+      add(rootAnchor?.getAttribute('title'), 'title_attribute', true);
+      add(rootAnchor?.getAttribute('aria-label'), 'aria_label', true);
+      const rootImg = rootAnchor?.querySelector('img');
+      if (rootImg) add(rootImg.getAttribute('alt'), 'image_alt', true);
+      const cardText = normalizeText(card?.innerText || card?.textContent || '');
+      const firstLine = String(card?.innerText || card?.textContent || '').split(/\r?\n/).map(normalizeText).find(Boolean) || '';
+      add(firstLine, 'card_text');
+      return items.sort((a, b) => b.browser_score - a.browser_score || b.value.length - a.value.length);
     };
 
-    const addCandidate = (list, text, source) => {
-      const value = cleanText(text);
-      if (!value || value.length < 2 || value.length > 220) return;
-      if (/^https?:\/\//i.test(value) || uiOnlySignal.test(value)) return;
-      list.push({ value, source });
-    };
-
-    const scoreCandidate = (candidate) => {
-      const value = candidate.value;
-      const normalized = normalize(value);
-      let score = 0;
-      if (candidate.source === 'same_url_anchor_text') score += 90;
-      else if (candidate.source === 'heading') score += 80;
-      else if (candidate.source === 'anchor_text') score += 70;
-      else if (candidate.source === 'aria_label') score += 58;
-      else if (candidate.source === 'title_attribute') score += 50;
-      else if (candidate.source === 'card_line') score += 20;
-      if (queryTokens.some((tk) => normalized.includes(tk))) score += 35;
-      if (value.length >= 4 && value.length <= 120) score += 12;
-      if (value.split(/\s+/).length >= 2) score += 5;
-      if (memberSignal.test(value)) score -= 70;
-      if (/\b(join|joined|invite|share|members?|public|private)\b/i.test(value)) score -= 25;
-      if (/^[0-9.,]+$/.test(value)) score -= 100;
-      return score;
-    };
-
-    const linkNodes = Array.from(main.querySelectorAll('a[href], [role="link"][href]'));
-    const grouped = new Map();
-    for (const node of linkNodes) {
-      const href = node.href || node.getAttribute('href') || '';
-      const groupUrl = canonicalGroupUrl(href);
+    const byUrl = new Map();
+    const anchors = Array.from(main.querySelectorAll('a[href*="/groups/"]'));
+    for (const a of anchors) {
+      const groupUrl = canonicalGroupUrl(a.href || a.getAttribute('href'));
       if (!groupUrl) continue;
-      if (!grouped.has(groupUrl)) grouped.set(groupUrl, { groupUrl, nodes: [], cards: [] });
-      const row = grouped.get(groupUrl);
-      row.nodes.push(node);
-      const card = findCard(node);
-      if (card && !row.cards.includes(card)) row.cards.push(card);
+      const card = a.closest('div[role="article"], div[role="listitem"], li, div[data-pagelet], div.x1n2onr6, div.x1yztbdb') || a.parentElement || main;
+      const snippet = normalizeText(card?.innerText || card?.textContent || '');
+      const candidates = nameCandidates(card, groupUrl, a);
+      if (!candidates.length) continue;
+      const tokenText = normalizeSearch(`${snippet} ${candidates.map((x) => x.value).join(' ')}`);
+      const queryTokenMatch = !queryTokens.length || queryTokens.some((tk) => tokenText.includes(tk));
+      const existing = byUrl.get(groupUrl) || { group_url: groupUrl, snippets: [], name_candidates: [], query_token_match: false };
+      if (snippet) existing.snippets.push(snippet);
+      existing.name_candidates.push(...candidates);
+      existing.query_token_match = existing.query_token_match || queryTokenMatch;
+      byUrl.set(groupUrl, existing);
     }
 
-    for (const row of grouped.values()) {
-      const nameCandidates = [];
-      let snippet = '';
-
-      for (const node of row.nodes) {
-        addCandidate(nameCandidates, node.innerText || node.textContent, 'anchor_text');
-        addCandidate(nameCandidates, node.getAttribute?.('aria-label'), 'aria_label');
-        addCandidate(nameCandidates, node.getAttribute?.('title'), 'title_attribute');
-      }
-
-      for (const card of row.cards) {
-        const cardText = cleanText(card.innerText || card.textContent || '');
-        if (cardText.length > snippet.length) snippet = cardText;
-
-        for (const heading of Array.from(card.querySelectorAll('h1,h2,h3,h4,[role="heading"]')).slice(0, 12)) {
-          addCandidate(nameCandidates, heading.innerText || heading.textContent, 'heading');
-        }
-
-        for (const sameLink of Array.from(card.querySelectorAll('a[href], [role="link"][href]')).slice(0, 40)) {
-          const sameUrl = canonicalGroupUrl(sameLink.href || sameLink.getAttribute('href') || '');
-          if (sameUrl === row.groupUrl) {
-            addCandidate(nameCandidates, sameLink.innerText || sameLink.textContent, 'same_url_anchor_text');
-            addCandidate(nameCandidates, sameLink.getAttribute?.('aria-label'), 'aria_label');
-          }
-        }
-
-        const lines = (card.innerText || card.textContent || '')
-          .split(/\r?\n/)
-          .map(cleanText)
-          .filter(Boolean)
-          .slice(0, 24);
-        for (const line of lines) addCandidate(nameCandidates, line, 'card_line');
-      }
-
-      const deduped = [];
-      const seen = new Set();
-      for (const candidate of nameCandidates) {
-        const key = normalize(candidate.value);
-        if (!key || seen.has(key)) continue;
-        seen.add(key);
-        deduped.push(candidate);
-      }
-      deduped.sort((a, b) => scoreCandidate(b) - scoreCandidate(a) || a.value.length - b.value.length);
-      const bestName = deduped[0] || { value: '', source: 'missing' };
-      const combined = normalize(`${bestName.value} ${snippet}`);
-      const queryTokenMatch = queryTokens.length === 0 || queryTokens.some((tk) => combined.includes(tk));
-
-      // Phase 1 is a high-recall discovery stage. Do not discard a Facebook-returned
-      // group merely because its visible card text omits the query token. V7 Phase 1.5
-      // and the Phase 2 title adjudicator perform the relevance decision later.
-      out.push({
-        group_name: bestName.value,
-        group_url: row.groupUrl,
-        snippet,
-        source_game_name: gameName,
-        source_query: sourceQuery,
-        query_variant_type: variantType,
-        source_is_seed_url: false,
-        source_queries: [sourceQuery],
-        query_variant_types: [variantType],
-        phase1_query_token_match: queryTokenMatch,
-        phase1_name_source: bestName.source,
-        phase1_group_link_count: row.nodes.length,
-      });
-    }
-    return out;
+    return Array.from(byUrl.values()).map((entry) => ({
+      group_url: entry.group_url,
+      snippet: Array.from(new Set(entry.snippets)).sort((a, b) => b.length - a.length)[0] || '',
+      name_candidates: entry.name_candidates,
+      phase1_query_token_match: Boolean(entry.query_token_match),
+      source_game_name: gameName,
+      source_query: sourceQuery,
+      query_variant_type: variantType,
+      source_is_seed_url: false,
+      source_queries: [sourceQuery],
+      query_variant_types: [variantType],
+    }));
   }, { queryTokens, sourceQuery, variantType, gameName });
-}
 
-async function probeSearchPage(page) {
-  return page.evaluate(() => {
-    const main = document.querySelector('div[role="main"]') || document.body;
-    const cleanText = (s) => (s || '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
-    const bodyText = cleanText(document.body?.innerText || '');
-    const nodes = Array.from(main.querySelectorAll('a[href], [role="link"][href]'));
-    const groupNodes = nodes.filter((node) => /\/groups\/(?!search(?:[/?#]|$)|discover(?:[/?#]|$)|feed(?:[/?#]|$)|joins(?:[/?#]|$)|create(?:[/?#]|$)|notifications(?:[/?#]|$))[^/?#]+/i.test(node.href || node.getAttribute('href') || ''));
-    return {
-      url: location.href,
-      title: document.title,
-      ready_state: document.readyState,
-      main_found: Boolean(document.querySelector('div[role="main"]')),
-      all_link_count: nodes.length,
-      group_link_count: groupNodes.length,
-      body_text_length: bodyText.length,
-      body_text_excerpt: bodyText.slice(0, 12000),
-      login_or_checkpoint_signal: /\/login|\/checkpoint/i.test(location.href) || /log in to facebook|登录 facebook|登入 facebook|安全检查|security check/i.test(bodyText),
-      temporary_error_signal: /something went wrong|出现错误|发生错误|temporarily blocked|暂时无法|try again later/i.test(bodyText),
-      no_results_signal: /没有搜索到结果|沒有搜尋到結果|no results|couldn't find any results|找不到任何结果/i.test(bodyText),
-      samples: groupNodes.slice(0, 20).map((node) => ({
-        href: node.href || node.getAttribute('href') || '',
-        text: cleanText(node.innerText || node.textContent || '').slice(0, 300),
-        aria_label: cleanText(node.getAttribute?.('aria-label') || '').slice(0, 300),
-        parent_text: cleanText(node.parentElement?.innerText || node.parentElement?.textContent || '').slice(0, 500),
-      })),
-    };
-  });
-}
-
-async function waitForSearchResultsReady(page, timeoutMs = 25000) {
-  try {
-    await page.waitForFunction(() => {
-      const bodyText = (document.body?.innerText || '').replace(/\s+/g, ' ');
-      const main = document.querySelector('div[role="main"]') || document.body;
-      const hasGroupLink = Array.from(main?.querySelectorAll('a[href*="/groups/"], [role="link"][href*="/groups/"]') || []).some((node) => /\/groups\/(?!search(?:[/?#]|$)|discover(?:[/?#]|$)|feed(?:[/?#]|$)|joins(?:[/?#]|$)|create(?:[/?#]|$)|notifications(?:[/?#]|$))[^/?#]+/i.test(node.href || node.getAttribute('href') || ''));
-      const terminalText = /没有搜索到结果|沒有搜尋到結果|no results|couldn't find any results|something went wrong|出现错误|发生错误|登录 facebook|登入 facebook|log in to facebook/i.test(bodyText);
-      return document.readyState === 'complete' && (hasGroupLink || terminalText);
-    }, { timeout: timeoutMs });
-  } catch (_e) {
-    // The page can stay in a continuously-loading state. The caller will probe
-    // the DOM and create diagnostics instead of treating this timeout as fatal.
-  }
-  await page.waitForTimeout(1500);
-}
-
-async function scrollSearchResults(page) {
-  try {
-    await page.evaluate(() => {
-      const main = document.querySelector('div[role="main"]') || document.body;
-      const candidates = [main, ...Array.from(main?.querySelectorAll('div') || []).slice(0, 500)];
-      let best = null;
-      let bestGap = 0;
-      for (const el of candidates) {
-        const gap = (el.scrollHeight || 0) - (el.clientHeight || 0);
-        if (gap > bestGap + 200) {
-          best = el;
-          bestGap = gap;
-        }
-      }
-      if (best && best !== document.body && best !== document.documentElement) best.scrollTop += Math.max(1800, best.clientHeight * 1.5);
-      window.scrollBy(0, Math.max(2200, window.innerHeight * 2));
+  const out = [];
+  for (const item of raw) {
+    const best = chooseBestNameCandidate(item.name_candidates || []);
+    if (!best || !best.clean_name) continue;
+    out.push({
+      group_name: best.clean_name,
+      group_url: item.group_url,
+      snippet: item.snippet,
+      source_game_name: item.source_game_name,
+      source_query: item.source_query,
+      query_variant_type: item.query_variant_type,
+      source_is_seed_url: false,
+      source_queries: item.source_queries,
+      query_variant_types: item.query_variant_types,
+      phase1_name_source: best.source || '',
+      phase1_name_raw: best.raw_name || '',
+      phase1_name_normalization: (best.reasons || []).join('|'),
+      phase1_name_score: best.score,
+      phase1_query_token_match: Boolean(item.phase1_query_token_match),
     });
-  } catch (_e) {
-    // Fall through to the wheel event.
   }
-  await page.mouse.wheel(0, 3600);
-  await page.waitForTimeout(1600);
-}
-
-function buildFacebookGroupSearchUrls(query) {
-  const q = encodeURIComponent(query);
-  return [
-    `https://www.facebook.com/search/groups/?q=${q}`,
-    `https://www.facebook.com/groups/search/groups_home/?q=${q}`,
-  ];
-}
-
-async function capturePhase1Diagnostics(page, outDir, gameName, variant, stage, extra = {}) {
-  if (!outDir) return null;
-  const dir = path.join(outDir, 'phase1_diagnostics');
-  fs.mkdirSync(dir, { recursive: true });
-  const base = `${slugify(gameName)}__${slugify(variant.query)}__${clean(variant.type).replace(/[^a-z0-9_-]+/gi, '_')}__${stage}`;
-  const jsonFile = path.join(dir, `${base}.json`);
-  const htmlFile = path.join(dir, `${base}.html`);
-  const screenshotFile = path.join(dir, `${base}.png`);
-  try {
-    const probe = await probeSearchPage(page);
-    fs.writeFileSync(jsonFile, JSON.stringify({
-      created_at: new Date().toISOString(),
-      game_name: gameName,
-      source_query: variant.query,
-      query_variant_type: variant.type,
-      stage,
-      probe,
-      extra,
-    }, null, 2), 'utf8');
-    try {
-      const html = await page.content();
-      fs.writeFileSync(htmlFile, html, 'utf8');
-    } catch (_e) {}
-    try {
-      await page.screenshot({ path: screenshotFile, fullPage: false, timeout: 30000 });
-    } catch (_e) {}
-    return { json_file: jsonFile, html_file: htmlFile, screenshot_file: screenshotFile };
-  } catch (_e) {
-    return null;
-  }
+  return out;
 }
 
 async function hasNoMoreResultsSignal(page) {
@@ -487,9 +358,14 @@ function mergeCandidate(existing, incoming) {
   const cardA = parseMemberCount(existing.snippet);
   const cardB = parseMemberCount(incoming.snippet);
   const betterIncomingSnippet = (cardB && !cardA) || ((incoming.snippet || '').length > (existing.snippet || '').length && !existing.source_is_seed_url);
+  const existingName = scoreNameCandidate({ value: existing.group_name, source: existing.phase1_name_source || 'unknown' });
+  const incomingName = scoreNameCandidate({ value: incoming.group_name, source: incoming.phase1_name_source || 'unknown' });
+  const useIncomingName = incomingName.score > existingName.score || (!existingName.clean_name && incomingName.clean_name);
+  const chosen = useIncomingName ? incoming : existing;
+  const chosenSanitized = sanitizeGroupName(chosen.group_name, { source: chosen.phase1_name_source || '' });
   return {
     ...existing,
-    group_name: clean(existing.group_name) || clean(incoming.group_name),
+    group_name: chosenSanitized.clean_name || clean(existing.group_name) || clean(incoming.group_name),
     snippet: betterIncomingSnippet ? incoming.snippet : existing.snippet,
     card_group_size: cardB || existing.card_group_size || '',
     source_query: existing.source_query || incoming.source_query,
@@ -497,31 +373,51 @@ function mergeCandidate(existing, incoming) {
     source_is_seed_url: Boolean(existing.source_is_seed_url || incoming.source_is_seed_url),
     source_queries: sourceQueries,
     query_variant_types: variantTypes,
+    phase1_name_source: chosen.phase1_name_source || '',
+    phase1_name_raw: chosen.phase1_name_raw || chosen.group_name || '',
+    phase1_name_normalization: Array.from(new Set([
+      ...(String(existing.phase1_name_normalization || '').split('|').filter(Boolean)),
+      ...(String(incoming.phase1_name_normalization || '').split('|').filter(Boolean)),
+      ...(chosenSanitized.reasons || []),
+    ])).join('|'),
+    phase1_name_score: Math.max(Number(existing.phase1_name_score || 0), Number(incoming.phase1_name_score || 0)),
+    phase1_query_token_match: Boolean(existing.phase1_query_token_match || incoming.phase1_query_token_match),
   };
 }
 
-async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressState, outDir, config) {
-  if (progressState) {
-    progressState.current_query = variant.query;
-    progressState.current_query_variant_type = variant.type;
-    progressState.current_round = 0;
-    progressState.current_query_candidates = 0;
-    progressState.current_query_started_at = new Date().toISOString();
+async function waitForSearchSurface(page, timeoutMs = 18000) {
+  try {
+    await page.waitForFunction(() => {
+      const text = (document.body?.innerText || '').replace(/\s+/g, ' ');
+      const hasGroupLink = Boolean(document.querySelector('a[href*="/groups/"]'));
+      const terminal = /no results|没有搜索结果|沒有搜尋結果|找不到结果|找不到結果|temporarily blocked|try again later|checkpoint|security check|登录|登入/i.test(text);
+      return hasGroupLink || terminal;
+    }, { timeout: timeoutMs });
+  } catch (_err) {
+    // Diagnostics are written if the final candidate set remains empty.
   }
+}
 
-  const searchUrls = buildFacebookGroupSearchUrls(variant.query);
-  let activeSearchUrlIndex = 0;
-  let activeSearchUrl = searchUrls[activeSearchUrlIndex];
-  let routeFallbackUsed = false;
-  const diagnosticsEnabled = config?.phase1_zero_result_diagnostics !== false;
+async function scrollSearchSurface(page) {
+  await page.evaluate(() => {
+    const candidates = Array.from(document.querySelectorAll('div, section, main'))
+      .filter((el) => el.scrollHeight > el.clientHeight + 400 && el.clientHeight > 250)
+      .sort((a, b) => (b.scrollHeight - b.clientHeight) - (a.scrollHeight - a.clientHeight));
+    const scroller = candidates[0];
+    if (scroller) scroller.scrollBy(0, Math.max(2400, scroller.clientHeight * 2));
+    window.scrollBy(0, Math.max(2400, window.innerHeight * 2));
+  }).catch(() => {});
+  await page.mouse.wheel(0, 3200).catch(() => {});
+  await page.waitForTimeout(1400);
+}
 
-  await gotoWithRetry(page, activeSearchUrl);
-  await waitForSearchResultsReady(page, Number(config?.phase1_results_ready_timeout_ms || 25000));
+async function runSearchRoute(page, searchUrl, gameName, variant, maxMinutes, progressState, routeType) {
+  await gotoWithRetry(page, searchUrl);
+  await waitForSearchSurface(page, 18000);
 
   const startedAt = Date.now();
   const map = new Map();
   const stats = [];
-  const diagnosticFiles = [];
   let rounds = 0;
   let noNewStreak = 0;
   let noGrowthStreak = 0;
@@ -531,50 +427,17 @@ async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressSt
   while (true) {
     rounds++;
     let got = [];
-    let probe = null;
     try {
       got = await collectRound(page, gameName, variant.query, variant.type);
-      probe = await probeSearchPage(page);
     } catch (_e) {
-      await gotoWithRetry(page, activeSearchUrl);
-      await waitForSearchResultsReady(page, Number(config?.phase1_results_ready_timeout_ms || 25000));
+      await gotoWithRetry(page, searchUrl);
+      await waitForSearchSurface(page, 12000);
       got = await collectRound(page, gameName, variant.query, variant.type);
-      probe = await probeSearchPage(page);
-    }
-
-    // Some Facebook accounts are routed to the newer Groups-search surface while
-    // others still receive the global-search surface. If the primary route exposes
-    // no group links at all, retry once through the alternate route before accepting
-    // a zero-result outcome.
-    if (
-      rounds === 1 &&
-      map.size === 0 &&
-      got.length === 0 &&
-      Number(probe?.group_link_count || 0) === 0 &&
-      activeSearchUrlIndex + 1 < searchUrls.length
-    ) {
-      if (diagnosticsEnabled) {
-        const files = await capturePhase1Diagnostics(page, outDir, gameName, variant, 'primary_route_zero', {
-          active_search_url: activeSearchUrl,
-          route_index: activeSearchUrlIndex,
-        });
-        if (files) diagnosticFiles.push(files);
-      }
-      activeSearchUrlIndex++;
-      activeSearchUrl = searchUrls[activeSearchUrlIndex];
-      routeFallbackUsed = true;
-      noNewStreak = 0;
-      noGrowthStreak = 0;
-      prevTotal = 0;
-      await gotoWithRetry(page, activeSearchUrl);
-      await waitForSearchResultsReady(page, Number(config?.phase1_results_ready_timeout_ms || 25000));
-      continue;
     }
 
     let newGroups = 0;
     for (const g of got) {
       const key = g.group_url;
-      if (!key) continue;
       const withSize = { ...g, card_group_size: parseMemberCount(g.snippet) };
       if (!map.has(key)) {
         map.set(key, withSize);
@@ -584,114 +447,83 @@ async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressSt
       }
     }
 
-    if (newGroups === 0) noNewStreak++;
-    else noNewStreak = 0;
-
-    if (map.size === prevTotal) noGrowthStreak++;
-    else noGrowthStreak = 0;
+    noNewStreak = newGroups === 0 ? noNewStreak + 1 : 0;
+    noGrowthStreak = map.size === prevTotal ? noGrowthStreak + 1 : 0;
     prevTotal = map.size;
-
     const noMore = await hasNoMoreResultsSignal(page);
     const elapsed = Date.now() - startedAt;
     if (progressState) {
       progressState.current_round = rounds;
       progressState.current_query_candidates = map.size;
+      progressState.current_search_route = routeType;
       progressState.total_candidates = Math.max(progressState.total_candidates || 0, (progressState.completed_candidates || 0) + map.size);
       progressState.last_round_new_groups = newGroups;
       progressState.last_round_no_new_streak = noNewStreak;
       progressState.last_round_no_growth_streak = noGrowthStreak;
       progressState.last_no_more_results_signal = noMore;
-      progressState.last_phase1_group_link_count = Number(probe?.group_link_count || 0);
-      progressState.current_search_url = activeSearchUrl;
-      progressState.route_fallback_used = routeFallbackUsed;
       progressState.last_updated_at = new Date().toISOString();
     }
 
     stats.push({
       query: variant.query,
       query_variant_type: variant.type,
+      search_route: routeType,
       round: rounds,
       new_groups: newGroups,
       total_unique: map.size,
-      raw_group_link_count: Number(probe?.group_link_count || 0),
-      all_link_count: Number(probe?.all_link_count || 0),
-      login_or_checkpoint_signal: Boolean(probe?.login_or_checkpoint_signal),
-      temporary_error_signal: Boolean(probe?.temporary_error_signal),
-      no_results_signal: Boolean(probe?.no_results_signal),
-      search_url: activeSearchUrl,
-      search_url_index: activeSearchUrlIndex,
-      route_fallback_used: routeFallbackUsed,
       no_new_streak: noNewStreak,
       no_growth_streak: noGrowthStreak,
       no_more_results_signal: noMore,
       elapsed_sec: Math.floor(elapsed / 1000),
     });
 
-    console.log(JSON.stringify({
-      game: gameName,
-      query: variant.query,
-      variant_type: variant.type,
-      round: rounds,
-      new_groups: newGroups,
-      total_unique: map.size,
-      raw_group_links: Number(probe?.group_link_count || 0),
-      route: activeSearchUrlIndex + 1,
-    }));
+    console.log(JSON.stringify({ game: gameName, query: variant.query, variant_type: variant.type, search_route: routeType, round: rounds, new_groups: newGroups, total_unique: map.size }));
 
-    if (probe?.login_or_checkpoint_signal) {
-      stopReason = 'LOGIN_OR_CHECKPOINT_SIGNAL';
-      break;
-    }
-    if (probe?.temporary_error_signal && map.size === 0) {
-      stopReason = 'FACEBOOK_TEMPORARY_ERROR';
-      break;
-    }
-    if (noMore) {
-      stopReason = 'NO_MORE_RESULTS_SIGNAL';
-      break;
-    }
-    if (noNewStreak >= 3) {
-      stopReason = map.size === 0 ? 'ZERO_CANDIDATES_AFTER_ROUTE_FALLBACK' : 'NO_NEW_GROUPS_3_SCROLLS';
-      break;
-    }
-    if (noGrowthStreak >= 3) {
-      stopReason = map.size === 0 ? 'ZERO_CANDIDATES_AFTER_ROUTE_FALLBACK' : 'LIST_NOT_GROWING';
-      break;
-    }
-    if (elapsed > maxMinutes * 60 * 1000) {
-      stopReason = 'TIME_GUARD';
-      break;
-    }
-
-    await scrollSearchResults(page);
+    if (noMore) { stopReason = 'NO_MORE_RESULTS_SIGNAL'; break; }
+    if (noNewStreak >= 3) { stopReason = 'NO_NEW_GROUPS_3_SCROLLS'; break; }
+    if (noGrowthStreak >= 3) { stopReason = 'LIST_NOT_GROWING'; break; }
+    if (elapsed > maxMinutes * 60 * 1000) { stopReason = 'TIME_GUARD'; break; }
+    await scrollSearchSurface(page);
   }
 
-  if (map.size === 0 && diagnosticsEnabled) {
-    const files = await capturePhase1Diagnostics(page, outDir, gameName, variant, 'final_zero', {
-      active_search_url: activeSearchUrl,
-      route_index: activeSearchUrlIndex,
-      route_fallback_used: routeFallbackUsed,
-      stop_reason: stopReason,
-      rounds,
-      stats,
-    });
-    if (files) diagnosticFiles.push(files);
-  }
+  return { stop_reason: stopReason, rounds, candidates: Array.from(map.values()), stats, route_type: routeType, search_url: searchUrl };
+}
 
+async function runOneSearchQuery(page, gameName, variant, maxMinutes, progressState) {
+  if (progressState) {
+    progressState.current_query = variant.query;
+    progressState.current_query_variant_type = variant.type;
+    progressState.current_round = 0;
+    progressState.current_query_candidates = 0;
+    progressState.current_query_started_at = new Date().toISOString();
+  }
+  const routes = [
+    { type: 'global_search_groups', url: `https://www.facebook.com/search/groups/?q=${encodeURIComponent(variant.query)}` },
+    { type: 'groups_search', url: `https://www.facebook.com/groups/search/groups/?q=${encodeURIComponent(variant.query)}` },
+  ];
+  const routeRuns = [];
+  let chosen = null;
+  for (const route of routes) {
+    const run = await runSearchRoute(page, route.url, gameName, variant, maxMinutes, progressState, route.type);
+    routeRuns.push(run);
+    if (run.candidates.length > 0) {
+      chosen = run;
+      break;
+    }
+  }
+  chosen = chosen || routeRuns[routeRuns.length - 1];
   return {
     query: variant.query,
     query_variant_type: variant.type,
-    stop_reason: stopReason,
-    rounds,
-    route_fallback_used: routeFallbackUsed,
-    active_search_url: activeSearchUrl,
-    diagnostics: diagnosticFiles,
-    candidates: Array.from(map.values()),
-    stats,
+    stop_reason: routeRuns.map((x) => `${x.route_type}:${x.stop_reason}`).join('|'),
+    rounds: routeRuns.reduce((sum, x) => sum + x.rounds, 0),
+    candidates: chosen ? chosen.candidates : [],
+    stats: routeRuns.flatMap((x) => x.stats),
+    route_runs: routeRuns.map((x) => ({ route_type: x.route_type, search_url: x.search_url, stop_reason: x.stop_reason, rounds: x.rounds, candidates_count: x.candidates.length })),
   };
 }
 
-async function runOneGame(page, gameName, maxMinutes, config, progressState, outDir) {
+async function runOneGame(page, gameName, maxMinutes, config, progressState) {
   const searchPlan = buildSearchPlan(gameName, config);
   const map = new Map();
   const allStats = [];
@@ -708,16 +540,14 @@ async function runOneGame(page, gameName, maxMinutes, config, progressState, out
       progressState.current_query_index = variantIdx + 1;
       progressState.current_query_total = searchPlan.length;
     }
-    const one = await runOneSearchQuery(page, gameName, variant, perVariantMaxMinutes, progressState, outDir, config);
+    const one = await runOneSearchQuery(page, gameName, variant, perVariantMaxMinutes, progressState);
     queryRuns.push({
       query: one.query,
       query_variant_type: one.query_variant_type,
       stop_reason: one.stop_reason,
       rounds: one.rounds,
       candidates_count: one.candidates.length,
-      route_fallback_used: one.route_fallback_used,
-      active_search_url: one.active_search_url,
-      diagnostics: one.diagnostics,
+      route_runs: one.route_runs || [],
     });
     allStats.push(...one.stats);
     if (progressState) {
@@ -748,6 +578,34 @@ async function runOneGame(page, gameName, maxMinutes, config, progressState, out
     candidates: Array.from(map.values()),
     stats: allStats,
   };
+}
+
+async function writePhase1Diagnostics(page, outDir, gameName, result) {
+  const diagnosticsDir = path.join(outDir, 'phase1_diagnostics');
+  fs.mkdirSync(diagnosticsDir, { recursive: true });
+  const slug = slugify(gameName);
+  const base = path.join(diagnosticsDir, slug);
+  const probe = await page.evaluate(() => {
+    const bodyText = (document.body?.innerText || '').replace(/\s+/g, ' ').slice(0, 12000);
+    const anchors = Array.from(document.querySelectorAll('a[href*="/groups/"]')).slice(0, 200).map((a) => ({
+      href: a.href || a.getAttribute('href') || '',
+      text: (a.innerText || a.textContent || '').replace(/\s+/g, ' ').trim(),
+      aria_label: a.getAttribute('aria-label') || '',
+      title: a.getAttribute('title') || '',
+      image_alt: a.querySelector('img')?.getAttribute('alt') || '',
+    }));
+    return { url: location.href, title: document.title, body_text: bodyText, group_anchor_count: anchors.length, anchors };
+  }).catch((error) => ({ error: String(error && error.message || error) }));
+  fs.writeFileSync(`${base}.json`, JSON.stringify({
+    version: '7.2.0',
+    generated_at: new Date().toISOString(),
+    game_name: gameName,
+    stop_reason: result.stop_reason || '',
+    query_runs: result.query_runs || [],
+    probe,
+  }, null, 2), 'utf8');
+  fs.writeFileSync(`${base}.html`, await page.content().catch(() => ''), 'utf8');
+  await page.screenshot({ path: `${base}.png`, fullPage: true }).catch(() => {});
 }
 
 (async () => {
@@ -803,16 +661,10 @@ async function runOneGame(page, gameName, maxMinutes, config, progressState, out
     const index = {
       created_at: new Date().toISOString(),
       mode: 'phase1',
-      collector_version: '7.0.1',
+      skill_version: '7.2.0',
       games: [],
       out_dir: outDir,
       config_file: args.config ? path.resolve(args.config) : '',
-      extraction_policy: {
-        high_recall_group_url_collection: true,
-        hard_query_token_rejection: false,
-        dual_search_route_recovery: true,
-        zero_result_diagnostics: config.phase1_zero_result_diagnostics !== false,
-      },
       variant_policy: {
         automatic: ['canonical', 'punctuation_normalized', 'compact_spacing'],
         configured_only: ['connector_x', 'configured_variant', 'seed_group_url'],
@@ -831,12 +683,13 @@ async function runOneGame(page, gameName, maxMinutes, config, progressState, out
       progressState.last_updated_at = new Date().toISOString();
       codexProgressReporter.writeSnapshot('game_started');
 
-      const one = await runOneGame(page, gameName, maxMinutes, config, progressState, outDir);
+      const one = await runOneGame(page, gameName, maxMinutes, config, progressState);
       const slug = slugify(gameName);
       const candidatesFile = path.join(outDir, `phase1_${slug}_candidates.json`);
       const statsFile = path.join(outDir, `phase1_${slug}_stats.json`);
 
       fs.writeFileSync(candidatesFile, JSON.stringify(one.candidates, null, 2), 'utf8');
+      if (one.candidates.length === 0) await writePhase1Diagnostics(page, outDir, gameName, one);
       fs.writeFileSync(statsFile, JSON.stringify({ stats: one.stats, query_runs: one.query_runs, search_plan: one.search_plan, per_variant_max_minutes: one.per_variant_max_minutes }, null, 2), 'utf8');
 
       progressState.completed_games = gameIdx + 1;

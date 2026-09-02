@@ -7,13 +7,13 @@ const http = require('http');
 const https = require('https');
 const { createCodexProgressReporter, parseProgressReportEveryMinutes } = require('./progress_reporter');
 const { readJsonFile } = require('./json_io');
+const { sanitizeGroupName, choosePhase2GroupName, chooseBestNameCandidate } = require('./group_name_utils');
 const {
   SemanticRegionCache,
   mergeSemanticRegionResolverConfig,
   runSemanticRegionResolver,
   semanticAuditFields,
 } = require('./semantic_region_resolver');
-const { preparePhase15Index } = require('./name_relevance_prefilter');
 
 let emergencyFlush = null;
 
@@ -3044,17 +3044,37 @@ function shortGameAliasMatches(text, phrase) {
   return Boolean(pattern && pattern.test(String(text || '').normalize('NFKC')));
 }
 
+function buildScriptAwareGamePhrasePattern(phrase) {
+  const raw = clean(phrase);
+  if (!raw) return null;
+  const tokens = raw.normalize('NFKC').split(/[^\p{Letter}\p{Number}]+/u).filter(Boolean);
+  if (!tokens.length) return null;
+  const body = tokens.map(escapeRegExp).join('[\\s\\p{P}\\p{S}\\p{Cf}_]*');
+  const latinNumericOnly = !/[^\p{Script=Latin}\p{Number}\s\p{P}\p{S}_]/u.test(raw);
+  if (latinNumericOnly) {
+    return new RegExp(
+      `(^|[^\\p{Script=Latin}\\p{Number}])${body}(?=$|[^\\p{Script=Latin}\\p{Number}])`,
+      'iu',
+    );
+  }
+  return null;
+}
+
 function phrasePresent(text, rawPhrases) {
-  const sourceText = clean(text || '');
+  const sourceText = clean(text || '').normalize('NFKC');
   const compactText = normalizeCompact(sourceText);
   let best = '';
   for (const phrase of rawPhrases || []) {
     const raw = clean(phrase);
     const compact = normalizeCompact(raw);
     if (!raw || !compact) continue;
-    const matched = isShortStandaloneGameAlias(raw)
-      ? shortGameAliasMatches(sourceText, raw)
-      : compactText.includes(compact);
+    let matched = false;
+    if (isShortStandaloneGameAlias(raw)) {
+      matched = shortGameAliasMatches(sourceText, raw);
+    } else {
+      const scriptPattern = buildScriptAwareGamePhrasePattern(raw);
+      matched = scriptPattern ? scriptPattern.test(sourceText) : compactText.includes(compact);
+    }
     if (matched && compact.length > best.length) best = compact;
   }
   return best;
@@ -3206,6 +3226,50 @@ const RESUME_STRONG_GROUP_NAME_MATCH_TYPES = new Set([
   'compact_title_in_group_name',
   'connector_x_title_in_group_name',
 ]);
+
+function normalizeResumedAvatarPollutionRows(rows, profiles) {
+  const normalizedRows = [];
+  const changed = [];
+  for (const original of (Array.isArray(rows) ? rows : [])) {
+    const row = { ...original };
+    const normalized = sanitizeGroupName(row.group_name || '', { source: row.__group_name_source || 'legacy_checkpoint' });
+    if (normalized.changed && normalized.clean_name) {
+      const oldName = clean(row.group_name || '');
+      const oldLanguage = clean(row.language_signal || row.language || '');
+      row.group_name = normalized.clean_name;
+      row.__group_name_normalization = Array.from(new Set([
+        ...(String(row.__group_name_normalization || '').split('|').filter(Boolean)),
+        ...normalized.reasons,
+      ])).join('|');
+      row.__group_name_source = row.__group_name_source || 'legacy_checkpoint_sanitized';
+      const profile = profiles && profiles.get(clean(row.game_name));
+      if (oldLanguage === 'Chinese') {
+        const inferred = detectLanguageSignalFromEvidence(
+          normalized.clean_name,
+          '',
+          '',
+          '',
+          profile && Array.isArray(profile.rawPhrases) ? profile.rawPhrases : [clean(row.game_name)],
+        );
+        if (inferred && inferred !== 'Chinese') {
+          row.language_signal = inferred;
+          row.language = inferred;
+        }
+      }
+      changed.push({
+        game_name: clean(row.game_name),
+        group_url: clean(row.group_url),
+        old_group_name: oldName,
+        new_group_name: normalized.clean_name,
+        old_language: oldLanguage,
+        new_language: clean(row.language_signal || row.language || ''),
+        reasons: normalized.reasons,
+      });
+    }
+    normalizedRows.push(row);
+  }
+  return { rows: normalizedRows, changed };
+}
 
 function revalidateResumedStrongTitleRows(rows, profiles) {
   const kept = [];
@@ -3422,27 +3486,44 @@ async function extractPageText(page) {
 
 
 async function extractGroupNameFromPage(page) {
-  return page.evaluate(() => {
-    const normalize = (s) => (s || '').replace(/\s+/g, ' ').trim();
+  const rawCandidates = await page.evaluate(() => {
+    const normalize = (value) => String(value || '')
+      .normalize('NFKC')
+      .replace(/\u00a0/g, ' ')
+      .replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/gu, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
     const candidates = [];
-    for (const sel of ['div[role="main"] h1', 'h1', '[role="main"] span[dir="auto"]']) {
-      for (const el of Array.from(document.querySelectorAll(sel))) {
-        const txt = normalize(el.innerText || el.textContent || '');
-        if (txt && txt.length >= 2 && txt.length <= 180) candidates.push(txt);
+    const add = (value, source) => {
+      const txt = normalize(value);
+      if (txt && txt.length >= 2 && txt.length <= 220) candidates.push({ value: txt, source });
+    };
+    for (const el of Array.from(document.querySelectorAll('div[role="main"] h1, main h1, h1'))) {
+      add(el.innerText || el.textContent, 'about_h1');
+    }
+    for (const el of Array.from(document.querySelectorAll('div[role="main"] h2, div[role="main"] h3, main h2, main h3'))) {
+      add(el.innerText || el.textContent, 'about_heading');
+    }
+    const title = normalize(document.title || '')
+      .replace(/\s*\|\s*Facebook\s*$/i, '')
+      .replace(/\s*\|\s*Meta\s*$/i, '');
+    add(title, 'about_document_title');
+    for (const el of Array.from(document.querySelectorAll('div[role="main"] [aria-label], main [aria-label]')).slice(0, 250)) {
+      const label = el.getAttribute('aria-label') || '';
+      if (/(?:头像|頭像|profile\s*(?:picture|photo)|プロフィール|프로필|ảnh\s*đại\s*diện|รูปโปรไฟล์|foto\s*profil|foto\s*(?:del|do)?\s*perfil|photo\s*de\s*profil)/iu.test(label)) {
+        add(label, 'aria_label');
       }
     }
-    const title = normalize(document.title || '').replace(/\s*\|\s*Facebook\s*$/i, '').replace(/\s*\|\s*Meta\s*$/i, '');
-    if (title && title.length <= 180) candidates.push(title);
-    const seen = new Set();
-    for (const c of candidates) {
-      const low = c.toLowerCase();
-      if (seen.has(low)) continue;
-      seen.add(low);
-      if (/^(facebook|groups|about|discussion|home)$/i.test(c)) continue;
-      return c;
-    }
-    return '';
+    return candidates;
   });
+  const best = chooseBestNameCandidate(rawCandidates);
+  if (!best) return { group_name: '', source: '', raw_name: '', normalization: '' };
+  return {
+    group_name: best.clean_name,
+    source: best.source || '',
+    raw_name: best.raw_name || '',
+    normalization: (best.reasons || []).join('|'),
+  };
 }
 
 async function extractLanguagePageText(page) {
@@ -3594,7 +3675,10 @@ async function fetchAboutWithRetry(page, groupUrl, maxTry = 2, timeoutMs = 60000
           text: pageText,
           language_text: languageText,
           location_text: locationText,
-          group_name: pageGroupName,
+          group_name: pageGroupName.group_name || '',
+          group_name_source: pageGroupName.source || '',
+          group_name_raw: pageGroupName.raw_name || '',
+          group_name_normalization: pageGroupName.normalization || '',
           reason: '',
         };
       } catch (_e) {
@@ -4157,23 +4241,9 @@ function resolveCollisions(rows) {
   const semanticRegionCache = new SemanticRegionCache(semanticRegionResolver.cache_file);
 
   const index = readJsonFile(indexFile);
-  const phase15Result = preparePhase15Index({
-    indexFile,
-    index,
-    config,
-    outDir: path.dirname(indexFile),
-    progressFile: outProgress,
-    force: boolLike(args['phase15-force'], false),
-    overrides: {
-      enabled: args['phase15-name-prefilter'] === undefined
-        ? undefined
-        : boolLike(args['phase15-name-prefilter'], true),
-    },
-  });
-  const activeIndex = phase15Result.index || index;
-  const gameEntries = Array.isArray(activeIndex.games) ? activeIndex.games : [];
+  const gameEntries = Array.isArray(index.games) ? index.games : [];
   if (!gameEntries.length) {
-    console.error('phase1_index.json does not contain any game entries after Phase 1.5 name prefiltering.');
+    console.error('phase1_index.json does not contain any game entries.');
     process.exit(1);
   }
 
@@ -4205,10 +4275,6 @@ function resolveCollisions(rows) {
   const completionBase = {
     run_dir: path.dirname(indexFile),
     index_file: indexFile,
-    phase15_prefilter_index_file: phase15Result.index_file || indexFile,
-    phase15_prefilter_audit_file: phase15Result.audit_file || '',
-    phase15_prefilter_rejected_file: phase15Result.rejected_file || '',
-    phase15_prefilter_review_file: phase15Result.review_file || '',
     out_xlsx: outXlsx,
     out_summary: outSummary,
     close_chrome_after_report: closeChromeAfterReport,
@@ -4225,18 +4291,6 @@ function resolveCollisions(rows) {
     const discussionLanguageCache = new Map();
     const stats = {
       total_candidates: 0,
-      phase15_name_prefilter_enabled: phase15Result.enabled ? 1 : 0,
-      phase15_name_prefilter_cache_hit: phase15Result.cache_hit ? 1 : 0,
-      phase15_input_candidates: Number((phase15Result.audit || {}).input_candidates || 0),
-      phase15_kept_candidates: Number((phase15Result.audit || {}).kept_candidates || 0),
-      phase15_rejected_candidates: Number((phase15Result.audit || {}).rejected_candidates || 0),
-      phase15_review_candidates: Number((phase15Result.audit || {}).review_candidates || 0),
-      phase15_reduction_rate: Number((phase15Result.audit || {}).reduction_rate || 0),
-      phase15_prefilter_index_file: phase15Result.index_file || indexFile,
-      phase15_prefilter_audit_file: phase15Result.audit_file || '',
-      phase15_prefilter_rejected_file: phase15Result.rejected_file || '',
-      phase15_prefilter_review_file: phase15Result.review_file || '',
-      phase15_reason_counts: (phase15Result.audit || {}).reason_counts || {},
       skipped_card_lt_100: 0,
       phase2_name_prefilter_enabled: phase2NamePrefilter.enabled ? 1 : 0,
       phase2_name_prefilter_checked: 0,
@@ -4453,14 +4507,22 @@ function resolveCollisions(rows) {
       ? resumeState.stats
       : null;
     if (resumeState) {
-      const resumedStagedRows = Array.isArray(resumeState.staged_rows) ? resumeState.staged_rows : [];
+      const resumedStagedRowsRaw = Array.isArray(resumeState.staged_rows) ? resumeState.staged_rows : [];
+      const resumedNormalized = normalizeResumedAvatarPollutionRows(resumedStagedRowsRaw, profiles);
+      const resumedStagedRows = resumedNormalized.rows;
       const resumedTitleRevalidation = revalidateResumedStrongTitleRows(resumedStagedRows, profiles);
       for (const row of resumedTitleRevalidation.kept) stagedRows.push(row);
-      for (const row of (Array.isArray(resumeState.manual_review_rows) ? resumeState.manual_review_rows : [])) manualReviewRows.push(row);
+      const resumedManualNormalized = normalizeResumedAvatarPollutionRows(
+        Array.isArray(resumeState.manual_review_rows) ? resumeState.manual_review_rows : [],
+        profiles,
+      );
+      for (const row of resumedManualNormalized.rows) manualReviewRows.push(row);
       if (resumeStats) Object.assign(stats, resumeStats);
       stats.phase2_resume_enabled = 1;
       stats.phase2_resume_source = 'full_autosave_checkpoint';
       stats.phase2_resume_title_rows_revalidated = resumedStagedRows.length;
+      stats.phase2_resume_avatar_name_rows_cleaned = resumedNormalized.changed.length + resumedManualNormalized.changed.length;
+      stats.phase2_resume_avatar_name_rows_cleaned_examples = [...resumedNormalized.changed, ...resumedManualNormalized.changed].slice(0, 20);
       stats.phase2_resume_title_rows_removed = resumedTitleRevalidation.removed.length;
       stats.phase2_resume_title_rows_removed_examples = resumedTitleRevalidation.removed.slice(0, 20);
       currentGameName = resumeProgress.current_game_name || '';
@@ -4664,7 +4726,7 @@ function resolveCollisions(rows) {
             stage: 'candidate_processed',
             status,
             current_group_url: c.group_url || '',
-            current_group_name: c.group_name || '',
+            current_group_name: sanitizeGroupName(c.group_name || '', { source: c.phase1_name_source || '' }).clean_name,
             ...extra,
           }, {
             writeXlsx: status === 'accepted',
@@ -4678,7 +4740,8 @@ function resolveCollisions(rows) {
           continue;
         }
 
-        const firstRoundGroupName = clean(c.group_name || '');
+        const firstRoundNameNormalized = sanitizeGroupName(c.group_name || '', { source: c.phase1_name_source || '' });
+        const firstRoundGroupName = clean(firstRoundNameNormalized.clean_name || '');
         const namePrefilter = precheckCandidateGroupName(profile, firstRoundGroupName, phase2NamePrefilter);
         if (phase2NamePrefilter.enabled) {
           stats.phase2_name_prefilter_checked++;
@@ -4723,7 +4786,13 @@ function resolveCollisions(rows) {
 
         const aboutText = about.text;
         const aboutLanguageText = about.language_text || '';
-        const candidateGroupName = clean(c.group_name || about.group_name || '');
+        const chosenGroupName = choosePhase2GroupName({
+          phase1Name: c.group_name || '',
+          phase1Source: c.phase1_name_source || '',
+          aboutName: about.group_name || '',
+          aboutSource: about.group_name_source || 'about_h1',
+        });
+        const candidateGroupName = clean(chosenGroupName.group_name || '');
         const threeGateResult = evaluateConfiguredThreeGateFilter(config, candidateGroupName, aboutText, c.snippet);
         if (threeGateResult.enabled) {
           stats.three_gate_checked++;
@@ -4790,6 +4859,11 @@ function resolveCollisions(rows) {
           __matched_phrase: match.phrase || '',
           __negative_hit: match.negative_hit || '',
           __review_reason: match.review_reason || '',
+          __group_name_source: chosenGroupName.source || '',
+          __phase1_group_name_raw: c.group_name || '',
+          __phase1_group_name_clean: chosenGroupName.phase1_clean_name || '',
+          __about_group_name_clean: chosenGroupName.about_clean_name || '',
+          __group_name_normalization: (chosenGroupName.normalization_reasons || []).join('|'),
           __three_gate_decision: threeGateResult.decision || '',
           __three_gate_reason: threeGateResult.reason || '',
           __three_gate_game_hits: (threeGateResult.game_hits || []).join('|'),

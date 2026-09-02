@@ -1,133 +1,53 @@
-# Facebook Group Monitor Skill V7.1.0
+# Facebook Group Monitor Skill V7.2.0
 
-V7.1.0 retains the true **Phase 1.5** introduced in V7.0.0 between first-round Facebook search and second-round page collection. The previous release performed a lightweight name check inside the phase-2 loop; V7 first traverses the entire phase-1 queue offline, removes obvious search noise, writes a reduced queue and audit files, and only then connects to Facebook detail pages.
-
-
-## V7.1.0 mixed-script boundary correction
-
-V7.0.1 used a Unicode-wide letter boundary around English titles. That incorrectly rejected titles directly touching Chinese, Thai, Lao, Arabic, or other non-Latin text. V7.1.0 uses script-aware boundaries for Latin/digit titles and aliases:
-
-- keeps `Sailor Piece水手寶石中文交易討論區`;
-- keeps `All Star Tower Defenseซื้อขาย`;
-- keeps `Pet Simulator 99中文讨论/交易群`;
-- keeps short aliases such as `GAG中文`, while still rejecting `GAGS`, `GAGGED`, `GAG2`, and `9GAG`;
-- accepts zero-width formatting characters between title tokens;
-- records the matching mode in `__phase15_prefilter_match_boundary_mode` and aggregate audit counts.
-
-The Phase 1.5 cache version is now `7.1.0`, so an existing V7.0.x manifest is invalidated automatically and the queue is rebuilt.
-
-## V7.0.1 Phase 1 false-zero recovery
-
-V7.0.1 fixes a case where Facebook visibly returned many groups but Phase 1 wrote zero candidates. The first-round collector now:
-
-- groups links by canonical Facebook group URL instead of assuming the title is the link's own `innerText`;
-- extracts names from same-URL links, headings, `aria-label`, `title`, and nearby card text;
-- records query-token matching as audit metadata rather than rejecting the candidate in Phase 1;
-- waits for an actual result/terminal signal and retries a second Facebook group-search route when the first route contains no group links;
-- scrolls both the document and the largest nested scroll container;
-- writes JSON, HTML, and screenshot evidence under `phase1_diagnostics/` whenever a query still ends at zero.
-
-Phase 1 is now intentionally high-recall. Phase 1.5 remains the stage that removes name-irrelevant groups before Phase 2 opens pages.
-
-## Why this change
-
-The supplied historical workbook contains 7,501 retained rows across 62 games. Approximately 96.8% of retained names contain the canonical title after safe punctuation/spacing normalization. Most remaining legitimate cases are explained by:
-
-- configured acronyms or expanded search terms;
-- localized titles;
-- final-token singular/plural variation;
-- removal of connector words while preserving the full identifying title;
-- punctuation or spacing differences such as `GAG2`, `GAG 2`, and `GAG-2`.
-
-The workbook also exposes legacy false-positive patterns, especially short aliases inside longer words or numbered sibling titles. V7 therefore uses boundary-aware and sibling-aware matching rather than raw substring filtering.
+V7.2.0 is a cumulative overlay for the existing Windows-oriented Skill. It contains the V7.0.1 Phase 1 recovery logic, the V7.1.0 script-aware Phase 1.5 boundary fix, and the V7.2.0 group-name sanitation and language-reclassification fix.
 
 ## Workflow
 
-1. Phase 1 collects candidates and source-query metadata.
-2. Input validation checks the original index, candidate files, config, and shutdown policy.
-3. Phase 1.5 builds a reduced queue from first-round group names.
-4. Phase 2 opens About/discussion pages only for retained or inconclusive candidates.
-5. Existing relevance, scale, activity, language, region, collision, checkpoint, finalization, and shutdown rules continue unchanged.
+1. Phase 1 searches Facebook through the main and fallback Groups routes, groups all links by canonical group URL, and extracts names from visible headings, visible links, attributes, image alternatives, and accessibility labels.
+2. Phase 1.5 sanitizes names and constructs a reduced queue without opening About or discussion pages.
+3. Phase 2 sanitizes the Phase 1 name again, fetches About, prefers a valid About heading, recalculates language from the cleaned name and page evidence, and then writes XLSX.
 
-## Phase 1.5 outputs
+## V7.2.0 correction
 
-Each run directory receives:
+Chinese-interface avatar links commonly expose an accessibility label such as:
 
 ```text
-phase15_prefilter_index.json          filtered index used internally by phase 2
-phase15_candidates/                   per-game filtered candidate files
-phase15_name_prefilter_audit.json     aggregate and per-game counts/reasons/examples
-phase15_name_prefilter_rejected.json  complete rejected-candidate audit
-phase15_name_prefilter_review.json    seed/missing/truncated or configured review candidates
-phase15_name_prefilter_manifest.json  deterministic cache fingerprint
-phase15_name_prefilter_progress.json  Phase 1.5 progress and completion state
+One Piece Bounty Rush Malaysia 🇲🇾的头像
 ```
 
-Original phase-1 files are never overwritten.
+The suffix is UI metadata, not part of the group name. V7.2.0:
 
-## Default filtering policy
-
-| Evidence in first-round group name | Phase 1.5 action |
-|---|---|
-| Canonical title / safe spacing variant | Keep |
-| Configured alias or expanded query | Keep |
-| Candidate's actual source query | Keep only when it appears in the name and is not solely a sibling title/alias |
-| Seed URL | Keep for page verification |
-| Missing or visibly truncated name | Keep as inconclusive |
-| IP root only | Reject by default |
-| Sibling title only | Reject by default |
-| Shorter title only inside a more-specific sibling | Reject |
-| No title/alias/query evidence | Reject |
-
-## Configuration
-
-```json
-"phase15_name_prefilter": {
-  "enabled": true,
-  "reuse_cache": true,
-  "keep_missing_or_truncated_names": true,
-  "keep_ip_root_only": false,
-  "keep_sibling_only_for_manual_review": false,
-  "use_source_queries": true,
-  "minimum_query_compact_length": 3,
-  "write_rejected_candidates": true,
-  "write_review_candidates": true,
-  "max_examples_per_reason": 20
-}
-```
-
-The existing `phase2_name_prefilter` remains active as a second defensive check.
+- removes localized avatar/profile-picture wrappers;
+- gives visible headings a much higher score than `aria-label`;
+- records `phase1_name_source`, raw name, normalization reasons, and score;
+- prefers a valid About-page heading during Phase 2;
+- performs language classification only after name sanitation;
+- sanitizes eligible rows restored from a non-finalized checkpoint;
+- provides an optional repair tool for already generated XLSX files.
 
 ## Commands
 
 ```powershell
-npm run phase15 -- --index ".\runs\<run>\phase1_index.json" --config ".\config\task.json"
+npm run phase1:test
 npm run phase15:test
-npm run phase2 -- --index ".\runs\<run>\phase1_index.json" --config ".\config\task.json"
+npm run group-name:test
 ```
 
-`phase2_collect_details.js` automatically runs or reuses Phase 1.5 before connecting to Facebook, so scheduled/background workflows require no manual extra step.
+Run Phase 1.5:
 
-## Preserved protections
+```powershell
+npm run phase15 -- --index ".\runs\RUN\phase1_index.json" --config ".\runs\RUN\task_config.json" --out-dir ".\runs\RUN_phase15" --force true
+```
 
-- Safe short-alias and numbered-continuation boundaries.
-- Sibling-title/alias/configured-variant exclusion.
-- `group_url + game_name` multi-game uniqueness.
-- Same-business-region preservation.
-- Complete checkpoint after every candidate.
-- Supervisor/child log isolation and startup health verification.
-- API-first semantic resolver chain and controlled GeoNames fallback.
-- BOM-safe JSON handling.
-- Node-verified shutdown and default no-shutdown behavior.
+Repair a previously finalized workbook without overwriting it:
+
+```powershell
+npm run repair-avatar-xlsx -- --input ".\runs\RUN\result.xlsx" --output ".\runs\RUN\result_v720_repaired.xlsx"
+```
+
+The repair tool creates a `v720_name_repair_audit` worksheet. A fresh Phase 2 run remains the authoritative way to recompute language from About and discussion evidence.
 
 ## Installation
 
-Stop active monitor processes, extract the archive into the existing Skill root, and replace matching files. Preserve:
-
-```text
-runs/
-config/
-node_modules/
-```
-
-No new npm dependency is required.
+Stop active monitor processes, extract the overlay into the existing Skill root, and replace matching files. Preserve `runs/`, `config/`, and `node_modules/`. No new dependency is introduced.

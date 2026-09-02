@@ -1,29 +1,19 @@
-# V7.1.0 Overlay Instructions
+# V7.2.0 Installation / Overlay Instructions
 
-1. Stop every active Facebook Group Monitor process before replacing files.
-2. Extract this archive into the existing Skill root and replace matching files.
-3. Preserve existing directories:
-
-```text
-runs/
-config/
-node_modules/
-```
-
-4. No new npm dependency is required.
-5. Run both regression checks once:
+1. Stop all active Facebook Group Monitor, Phase 1, Phase 1.5, Phase 2, supervisor, and scheduled-run processes.
+2. Back up the current Skill directory.
+3. Extract this archive into the existing Skill root and replace matching files.
+4. Preserve existing `runs/`, `config/`, and `node_modules/` directories.
+5. No new npm dependency is required.
+6. Run:
 
 ```powershell
 npm run phase1:test
 npm run phase15:test
+npm run group-name:test
 ```
 
-6. Start phase 2 normally. V7 automatically runs or reuses Phase 1.5 before connecting to Facebook.
-7. For an existing unfinished V6 checkpoint, keep the original `phase1_index.json`; V7 retains that path as the checkpoint identity and builds filtered queues beside it.
-8. Existing finalized XLSX files are not rewritten automatically. Run a fresh second round for V7-filtered results.
-
-9. Re-run Phase 1 for any game whose older run produced `total_candidates: 0`. Phase 1.5 cannot recover links that were never collected.
-10. If a query still ends at zero, send the matching files from `runs\<run>\phase1_diagnostics\`; do not send only the final console summary.
-
-11. For a directory that already contains V7.0.x Phase 1.5 outputs, rerun Phase 1.5 with the same original `phase1_index.json`. The `7.1.0` cache version automatically invalidates the old manifest. You may also pass `--force true` explicitly.
-12. Do not continue Phase 2 from the old V7.0.1 `phase15_prefilter_index.json`; rebuild the reduced queue first so mixed-script title groups are restored.
+7. For new collection, rerun Phase 1 so the improved source scoring is available. Existing clean Phase 1 data can be reused, because Phase 1.5 and Phase 2 also sanitize legacy names.
+8. Do not reuse a V7.0.x/V7.1.x Phase 1.5 cache. V7.2.0 uses a new cache version and `--force true` is recommended for the first rerun.
+9. For already finalized XLSX files, use `npm run repair-avatar-xlsx` to create a new repaired workbook, or rerun Phase 2 for full language recomputation from Facebook evidence.
+10. The repair tool never overwrites the source workbook.
