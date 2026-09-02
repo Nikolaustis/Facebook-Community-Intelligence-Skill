@@ -1,7 +1,7 @@
 {
-  "name": "fb-group-monitor-skill-v7-2-0",
+  "name": "fb-group-monitor-skill",
   "version": "7.2.0",
-  "description": "Two-stage Facebook game-group monitor with resilient Phase 1 search recovery, script-aware Phase 1.5 name prefiltering, localized avatar-label cleanup, About-page name preference, language reclassification, and cumulative V6.6.4 safety features.",
+  "description": "Windows-oriented Facebook game-group monitor with resilient discovery, automatic offline name prefiltering, localized accessibility-label cleanup, page-level validation, durable checkpoints, and audited Excel export.",
   "private": true,
   "scripts": {
     "login": "powershell -ExecutionPolicy Bypass -File .\\scripts\\open_chrome_9222.ps1",
@@ -26,11 +26,13 @@
     "phase2:handoff": "powershell -ExecutionPolicy Bypass -File .\\scripts\\queue_phase2_after_current.ps1",
     "semantic:clear-legacy-codex-env": "powershell -ExecutionPolicy Bypass -File .\\scripts\\clear_legacy_codex_cli_path.ps1",
     "phase2:verify-shutdown": "node .\\scripts\\verify_shutdown_state.js",
-    "phase15": "node scripts/phase15_name_prefilter.js",
-    "phase1:test": "node scripts/tests/test_phase1_name_recovery.js",
-    "phase15:test": "node scripts/tests/test_phase15_name_prefilter.js",
-    "group-name:test": "node scripts/tests/test_group_name_utils.js",
-    "repair-avatar-xlsx": "node scripts/repair_avatar_name_pollution_xlsx.js"
+    "phase15": "node ./scripts/phase15_prefilter_candidates.js",
+    "phase1:test": "node ./tests/test_phase1_recovery_static.js",
+    "phase15:test": "node ./tests/test_phase15_name_prefilter.js",
+    "group-name:test": "node ./tests/test_group_name_utils.js",
+    "repair-avatar-xlsx": "node scripts/repair_avatar_name_pollution_xlsx.js",
+    "phase2:integration-test": "node ./tests/test_phase2_phase15_integration.js",
+    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run phase2:integration-test"
   },
   "dependencies": {
     "playwright": "^1.59.1",

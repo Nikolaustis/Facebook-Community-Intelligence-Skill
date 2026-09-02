@@ -93,7 +93,7 @@ function main() {
     process.exit(1);
   }
   const parsed = path.parse(input);
-  const output = path.resolve(args.output || path.join(parsed.dir, `${parsed.name}_v720_repaired${parsed.ext || '.xlsx'}`));
+  const output = path.resolve(args.output || path.join(parsed.dir, `${parsed.name}_name_repaired${parsed.ext || '.xlsx'}`));
   if (input === output) throw new Error('Output must be a new file; the repair tool never overwrites the source workbook.');
   const workbook = XLSX.readFile(input, { cellDates: true, cellStyles: true, cellFormula: true });
   const sheetName = args.sheet || (workbook.SheetNames.includes('detail') ? 'detail' : workbook.SheetNames[0]);
@@ -147,7 +147,7 @@ function main() {
   if (sheet['!merges']) newSheet['!merges'] = sheet['!merges'];
   if (sheet['!autofilter']) newSheet['!autofilter'] = sheet['!autofilter'];
   workbook.Sheets[sheetName] = newSheet;
-  const auditName = uniqueSheetName(workbook, 'v720_name_repair_audit');
+  const auditName = uniqueSheetName(workbook, 'name_repair_audit');
   workbook.SheetNames.push(auditName);
   const auditSheet = XLSX.utils.aoa_to_sheet(audit);
   auditSheet['!cols'] = [

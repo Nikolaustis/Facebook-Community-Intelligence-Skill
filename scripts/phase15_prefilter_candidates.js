@@ -44,7 +44,6 @@ function boolLike(value, fallback = false) {
   });
   process.stdout.write(`${JSON.stringify({
     ok: true,
-    version: '7.1.0',
     enabled: result.enabled,
     cache_hit: result.cache_hit,
     filtered_index_file: result.index_file,

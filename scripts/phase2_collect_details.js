@@ -8,6 +8,7 @@ const https = require('https');
 const { createCodexProgressReporter, parseProgressReportEveryMinutes } = require('./progress_reporter');
 const { readJsonFile } = require('./json_io');
 const { sanitizeGroupName, choosePhase2GroupName, chooseBestNameCandidate } = require('./group_name_utils');
+const { preparePhase15Index } = require('./name_relevance_prefilter');
 const {
   SemanticRegionCache,
   mergeSemanticRegionResolverConfig,
@@ -4241,9 +4242,23 @@ function resolveCollisions(rows) {
   const semanticRegionCache = new SemanticRegionCache(semanticRegionResolver.cache_file);
 
   const index = readJsonFile(indexFile);
-  const gameEntries = Array.isArray(index.games) ? index.games : [];
+  const phase15Result = preparePhase15Index({
+    indexFile,
+    index,
+    config,
+    outDir: path.dirname(indexFile),
+    progressFile: outProgress,
+    force: boolLike(args['phase15-force'], false),
+    overrides: {
+      enabled: args['phase15-name-prefilter'] === undefined
+        ? undefined
+        : boolLike(args['phase15-name-prefilter'], true),
+    },
+  });
+  const activeIndex = phase15Result.index || index;
+  const gameEntries = Array.isArray(activeIndex.games) ? activeIndex.games : [];
   if (!gameEntries.length) {
-    console.error('phase1_index.json does not contain any game entries.');
+    console.error('phase1_index.json does not contain any game entries after Phase 1.5 name prefiltering.');
     process.exit(1);
   }
 

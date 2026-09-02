@@ -1,100 +1,127 @@
 ---
 name: facebook-group-monitor
 version: 7.2.0
-description: Facebook game-group monitoring with resilient Phase 1 search extraction, script-aware Phase 1.5 name prefiltering, localized avatar-label cleanup, About-page name preference, language reclassification, and cumulative V6.6.4 safety protections.
+description: Two-stage Facebook game-group monitoring with resilient discovery, automatic offline name prefiltering, localized accessibility-label cleanup, About-page validation, language/region resolution, durable checkpoints, and Excel export.
 ---
 
-# Facebook Group Monitor V7.2.0
+# Facebook Group Monitor
 
 ## Operating sequence
 
-1. Collect Phase 1 candidates with source-query and group-name-source metadata.
-2. Run Phase 1.5 to sanitize candidate names and build a reduced second-round queue before any Facebook detail page is opened.
-3. Validate the Phase 2 index, configuration, shutdown policy, and all candidate files before launch.
-4. Validate target titles, aliases, controlled variants, sibling titles, sibling aliases, and IP-root-only matches.
-5. Prefer a valid About-page heading over a weaker Phase 1 accessibility label, then resolve language and region from the cleaned name and page evidence.
-6. For unresolved risk candidates use:
+1. Phase 1 collects Facebook group candidates with canonical URLs, source queries, query-variant types, card member counts, and name-source audit metadata.
+2. Phase 1.5 must finish before Phase 2 opens About or discussion pages. It builds a reduced queue and complete audit artifacts while leaving original Phase 1 files unchanged.
+3. Phase 2 automatically runs or reuses Phase 1.5 when invoked from the original `phase1_index.json`.
+4. Phase 2 validates relevance and sibling collisions, collects About/discussion evidence, resolves language and region, applies thresholds, and writes final outputs.
+5. Save a complete checkpoint after every Phase 2 candidate.
+6. Final uniqueness is `group_url + game_name`; only same-URL, same-game duplicates may be collapsed.
+7. Default to no shutdown. A shutdown may occur only when the current user instruction explicitly permits it and the run passes the shutdown verifier.
+
+## Phase 1 discovery rules
+
+Phase 1 is high-recall discovery. Do not discard a Facebook-returned group only because the visible card text does not contain the current query token.
+
+- Group links are normalized to a canonical group root URL.
+- Candidate names may be collected from visible headings, visible anchors, title attributes, image alternatives, accessibility labels, and card text.
+- Visible headings and visible links outrank accessibility labels and image alternatives.
+- If the primary search surface yields no usable group links, try the fallback Groups search route.
+- Search readiness is based on actual result/terminal signals rather than fixed sleep alone.
+- Scroll both the document and a large nested scroll container when necessary.
+- A completed zero-candidate query must write diagnostic JSON, HTML, and screenshot evidence under `phase1_diagnostics/`.
+
+## Group-name sanitation
+
+Facebook accessibility text is evidence, not an authoritative display name. Remove recognized localized avatar/profile-picture wrappers before relevance matching, language detection, region resolution, checkpointing, and XLSX output.
+
+Examples include:
 
 ```text
-custom APIs in configured order
-→ verified standalone Codex CLI
-→ local rules and controlled GeoNames
+群组名称的头像
+Group name's profile picture
+グループ名のプロフィール写真
+그룹 이름의 프로필 사진
 ```
 
-7. Save a complete checkpoint after every candidate.
-8. Generate aligned `detail` and `manual_review` sheets using the authoritative field order in this package.
-9. Close Chrome after successful finalization and delete completed scheduled tasks.
-10. Default to no shutdown. Build the run-specific shutdown policy only from the user's current instruction.
+Phase 2 should prefer a valid About-page heading when the Phase 1 name came from a weak accessibility source or the cleaned names agree. Preserve raw-name/source/normalization metadata in audit fields.
 
+## Phase 1.5 name prefilter
 
-## Mandatory group-name sanitation rule
+Phase 1.5 evaluates every candidate before Facebook detail-page access using:
 
-Facebook accessibility labels are evidence sources, not authoritative display names. Localized wrappers such as `群组名称的头像`, `Group name's profile picture`, `グループ名のプロフィール写真`, and equivalent labels must be removed before matching, language detection, region resolution, checkpointing, and XLSX output.
+- canonical game title;
+- configured aliases;
+- configured search variants;
+- the candidate's actual source query/query set;
+- safe full-title spacing/punctuation variants;
+- sibling-game titles, aliases, and configured variants;
+- configured IP roots.
 
-Visible headings outrank `aria-label` and image `alt` text. Phase 2 must prefer a valid About-page `h1`/heading when it agrees with the Phase 1 name or the Phase 1 source is weak. The raw source and normalization reason remain available in JSON audit fields.
+Default disposition:
 
-A finalized `group_name` cell must never contain a recognized avatar/profile-picture wrapper.
+- Keep a canonical title, safe variant, alias, or valid source-query match.
+- Keep seed URLs and missing/truncated names as inconclusive for page verification.
+- Reject IP-root-only evidence by default.
+- Reject sibling-only evidence by default.
+- Reject a shorter title or alias when all of its evidence is contained only inside a more-specific sibling title.
 
-## Mandatory short-alias rule
-
-Never use unrestricted substring matching for a short Latin alias. A short alias must be a standalone token with Latin-letter/number boundaries.
-
-For aliases containing a trailing number, separators between letters and the number are equivalent:
+The stage writes:
 
 ```text
-GAG2 = GAG 2 = GAG-2
+phase15_prefilter_index.json
+phase15_candidates/
+phase15_name_prefilter_audit.json
+phase15_name_prefilter_rejected.json
+phase15_name_prefilter_review.json
+phase15_name_prefilter_manifest.json
+phase15_name_prefilter_progress.json
 ```
 
-A shorter alias ending in letters must not match a numbered continuation:
+## Mixed-script and short-alias boundaries
+
+For a target phrase made only of Latin letters/numbers, an adjacent non-Latin script is a valid boundary. A visible space is not required.
+
+Valid examples:
 
 ```text
-GAG does not match GAG2 or GAG 2
+Sailor Piece水手寶石中文交易討論區
+All Star Tower Defenseซื้อขาย
+Pet Simulator 99中文讨论群
+GAG中文交易群
 ```
 
-It must also not match longer words such as `gags`, `gagged`, or `9gag`.
-
-Sibling exclusion must include each sibling game's canonical title, aliases, and configured title variants. A more specific sibling form must suppress a shorter contained-title match.
-
-## Mandatory same-business-region rule
-
-When explicit country keywords and/or flags identify several countries that all normalize to one business-region bucket, preserve that bucket and mark the source with `_same_business_region`.
-
-Do not send a resolved same-business-region result through cross-region About adjudication. Example:
+Latin-letter and numeric continuation remains blocked:
 
 ```text
-LA + TH → SEA
+Sailor Pieces
+Sailor PieceMN
+All Star Tower DefenseX
+Pet Simulator 99100
+GAG2 as evidence for GAG
+9GAG as evidence for GAG
 ```
 
-## Mandatory multi-game output rule
+Unicode format controls such as zero-width spaces may separate title tokens.
 
-Final-output uniqueness is:
+## Language and region
 
-```text
-group_url + game_name
-```
+Resolve language and region from cleaned group names and page evidence. UI accessibility wrappers must not influence language classification.
 
-When one group independently and clearly matches multiple target games, preserve one final row for each matched game. Only same-URL, same-game duplicates may be collapsed, keeping the highest score.
+Use deterministic evidence first, then configured semantic providers and controlled GeoNames fallback. When explicit country evidence maps to a single business-region bucket, preserve that bucket and record the same-business-region source instead of treating it as a cross-region conflict.
 
-## Mandatory resume revalidation
+## Resume and checkpoint rules
 
-On resume from a non-finalized full checkpoint, revalidate staged rows whose prior match type was a strong group-name title match. Remove rows that no longer satisfy the current title and sibling rules, and record the removal count and examples in runtime statistics.
-
-## Mandatory supervisor-log isolation
-
-`phase2_supervisor.js` owns the phase-2 child stdout and stderr files. `scheduled_phase2_runner.ps1` must write supervisor wrapper output to separate files. Do not treat a PID alone as startup success; require a live phase-2 child and fresh readable `phase2_progress.json`.
-
-## Mandatory shutdown verification
-
-Use `scripts/verify_shutdown_state.js` to read the full checkpoint, progress, completion, policy, and final outputs. PowerShell may issue shutdown only from the small generated verification report with `all_valid=true` and a currently permitted shutdown policy.
-
-## Mandatory Codex CLI isolation
-
-Never create, set, recommend, or depend on the global `CODEX_CLI_PATH` environment variable. Prefer private configuration, normal PATH/npm discovery, or the Skill-specific `FB_MONITOR_CODEX_CLI_PATH` override.
-
-## Mandatory JSON handling
-
-Use `scripts/json_io.js` for JavaScript JSON reads. PowerShell-generated JSON must use UTF-8 without BOM.
+- The original `phase1_index.json` remains the Phase 2 checkpoint identity.
+- Phase 1.5 reduced queues are derived artifacts and may be rebuilt.
+- Non-finalized checkpoints must be revalidated under current title/sibling/name-sanitation rules before continuing.
+- A candidate is considered durable only after its checkpoint row and cursor have been persisted.
 
 ## XLSX output contract
 
-The workbook field order in this package is authoritative. `manual_review` begins with the same columns as `detail`; review-only fields follow afterward. New audit fields may be appended but must not reorder existing columns.
+The field order defined by the Phase 2 implementation is authoritative. `manual_review` begins with the same public columns as `detail`; review-only fields follow afterward. Missing values remain blank rather than being replaced with zero.
+
+## Runtime safety
+
+- Supervisor and Phase 2 child logs remain isolated.
+- Startup success requires a live child plus a fresh readable progress file, not a PID alone.
+- JavaScript JSON reads use `scripts/json_io.js`; PowerShell-generated JSON must be UTF-8 without BOM.
+- Do not depend on a global `CODEX_CLI_PATH` environment variable.
+- Shutdown requires the Node verifier and a current permitted shutdown policy.
