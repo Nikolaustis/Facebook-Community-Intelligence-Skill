@@ -8,11 +8,17 @@ logs/
 .env
 .env.*
 config/*.local.json
+config/**/*.local.json
+config/local/
 config/*secret*.json
+config/**/*secret*.json
 config/*credential*.json
+config/**/*credential*.json
 
 phase1_diagnostics/
 _backup_*/
+scripts/.__runtime_*.js
+scripts/.__runtime_*.ps1
 
 .DS_Store
 Thumbs.db
@@ -20,4 +26,3 @@ Thumbs.db
 *.xlsx
 *.xls
 shutdown_preflight_verification.json
-
