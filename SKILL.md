@@ -1,6 +1,5 @@
 ---
 name: facebook-group-monitor
-version: 8.0.0
 description: Two-stage Facebook game-group monitoring with resilient discovery, automatic offline name prefiltering, localized accessibility-label cleanup, About-page validation, language/region resolution, durable checkpoints, and Excel export.
 ---
 

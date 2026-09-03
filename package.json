@@ -1,6 +1,5 @@
 {
   "name": "fb-group-monitor-skill",
-  "version": "8.0.0",
   "description": "Windows-oriented Facebook game-group monitor with resilient discovery, automatic offline name prefiltering, localized accessibility-label cleanup, page-level validation, durable checkpoints, and audited Excel export.",
   "private": true,
   "scripts": {
@@ -8,7 +7,7 @@
     "doctor": "node .\\scripts\\doctor.js",
     "phase1": "node .\\scripts\\run_collector_reliable.js phase1",
     "phase2": "node .\\scripts\\run_collector_reliable.js phase2",
-    "monitor": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run_multi_games_v2.ps1",
+    "monitor": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run_multi_games_reliable.ps1",
     "validate-login": "node .\\scripts\\validate_login_state.js",
     "login:bg": "powershell -ExecutionPolicy Bypass -File .\\scripts\\start_background_reliable.ps1 -Task login",
     "validate-login:bg": "powershell -ExecutionPolicy Bypass -File .\\scripts\\start_background_reliable.ps1 -Task validate-login",
@@ -33,11 +32,11 @@
     "group-name:test": "node ./tests/test_group_name_utils.js",
     "metrics:test": "node ./tests/test_facebook_metrics_parser.js",
     "reliability:test": "node ./tests/test_collector_reliability_patcher.js",
+    "metadata:test": "node ./tests/test_project_metadata.js",
     "repair-avatar-xlsx": "node scripts/repair_avatar_name_pollution_xlsx.js",
     "phase2:integration-test": "node ./tests/test_phase2_phase15_integration.js",
-    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run metrics:test && npm run reliability:test && npm run reliability:contract-test && npm run release-version:test && npm run phase2:integration-test",
-    "reliability:contract-test": "node ./tests/test_reliability_against_collectors.js",
-    "release-version:test": "node ./tests/test_v8_release_version.js"
+    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run metrics:test && npm run reliability:test && npm run reliability:contract-test && npm run metadata:test && npm run phase2:integration-test",
+    "reliability:contract-test": "node ./tests/test_reliability_against_collectors.js"
   },
   "dependencies": {
     "playwright": "^1.59.1",

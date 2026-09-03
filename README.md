@@ -1,8 +1,8 @@
-# Facebook Game Group Monitor Skill — V8.0.0
+# Facebook Game Group Monitor Skill
 
-A Windows-oriented Codex skill for two-stage Facebook **game-group** monitoring. V8.0.0 is the mature Game-centric baseline: it combines high-recall discovery, offline name prefiltering, page-level validation, multilingual metric parsing, language/region resolution, durable checkpoints, audited Excel export, and hardened foreground/background execution.
+A Windows-oriented Codex skill for two-stage Facebook **game-group** monitoring. It combines high-recall discovery, offline name prefiltering, page-level validation, multilingual metric parsing, language/region resolution, durable checkpoints, audited Excel export, and hardened foreground/background execution.
 
-> V8.0.0 deliberately retains the `Game -> Facebook Group` domain model. The later Community Intelligence / Subject model is not part of this release.
+The current domain model is `Game -> Facebook Group`. Generalized Subject / Community modeling is outside the current project scope.
 
 ## Pipeline
 
@@ -26,9 +26,9 @@ A Windows-oriented Codex skill for two-stage Facebook **game-group** monitoring.
    - Applies scale/activity thresholds.
    - Writes checkpointed XLSX/JSON outputs and manual-review records.
 
-## V8.0.0 reliability hardening
+## Reliability hardening
 
-V8.0.0 adds a reliability layer around the mature collectors rather than rewriting them:
+The reliability layer wraps the mature collectors rather than replacing their domain logic:
 
 - `npm run doctor` checks Node, browser/CDP, profile/login readiness, configuration, and runtime prerequisites.
 - `npm run phase1` / `npm run phase2` run through a verified reliability wrapper.
@@ -38,7 +38,7 @@ V8.0.0 adds a reliability layer around the mature collectors rather than rewriti
 - Browser startup supports Chrome/Edge discovery and a machine-local dedicated profile path.
 - Login validation distinguishes authenticated state from login/checkpoint/challenge/interstitial failure states.
 - Foreground, background, scheduled Phase 2, and handoff paths use the same hardened entrypoints.
-- Regression and contract tests fail closed when upstream collector source markers no longer match the verified patch assumptions.
+- Regression and contract tests fail closed when upstream collector source markers no longer match verified assumptions.
 
 See [`RELIABILITY_HARDENING.md`](RELIABILITY_HARDENING.md) for implementation details.
 
@@ -115,9 +115,4 @@ phase2_progress.json
 - Do not commit browser profiles, cookies, credentials, provider secrets, or runtime data.
 - Shutdown is disabled by default and only runs when the current instruction explicitly permits it and the shutdown verifier passes.
 
-## Release line
-
-- **V8.0.0** — mature Game-centric baseline + reliability hardening.
-- V7.x historical design/incident documents remain in the repository as development history.
-
-For installation/upgrade details, see [`INSTALLATION.md`](INSTALLATION.md).
+For installation and upgrade details, see [`INSTALLATION.md`](INSTALLATION.md).
