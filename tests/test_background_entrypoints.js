@@ -8,12 +8,10 @@ const repo = path.resolve(__dirname, '..');
 
 function read(relativePath) {
   const fullPath = path.join(repo, relativePath);
-
   assert(
     fs.existsSync(fullPath),
     `Required file does not exist: ${relativePath}`,
   );
-
   return fs.readFileSync(fullPath, 'utf8');
 }
 
@@ -24,17 +22,9 @@ function assertFileExists(relativePath) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Required stable entrypoints
-// ---------------------------------------------------------------------------
-
 assertFileExists('scripts/run_multi_games_reliable.ps1');
 assertFileExists('scripts/start_background_reliable.ps1');
 assertFileExists('scripts/start_background_task.ps1');
-
-// ---------------------------------------------------------------------------
-// package.json contracts
-// ---------------------------------------------------------------------------
 
 const pkg = JSON.parse(read('package.json'));
 
@@ -50,10 +40,6 @@ assert.strictEqual(
   'npm run monitor:bg must use the reliable background wrapper',
 );
 
-// ---------------------------------------------------------------------------
-// Background monitor dependency contract
-// ---------------------------------------------------------------------------
-
 const backgroundTask = read('scripts/start_background_task.ps1');
 
 assert(
@@ -67,10 +53,6 @@ assert(
   !backgroundTask.includes('run_multi_games_v2.ps1'),
   'start_background_task.ps1 must not reference the removed legacy monitor entrypoint',
 );
-
-// ---------------------------------------------------------------------------
-// Reliable wrapper contract
-// ---------------------------------------------------------------------------
 
 const backgroundWrapper = read('scripts/start_background_reliable.ps1');
 

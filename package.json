@@ -33,9 +33,10 @@
     "metrics:test": "node ./tests/test_facebook_metrics_parser.js",
     "reliability:test": "node ./tests/test_collector_reliability_patcher.js",
     "metadata:test": "node ./tests/test_project_metadata.js",
+    "background:test": "node ./tests/test_background_entrypoints.js",
     "repair-avatar-xlsx": "node scripts/repair_avatar_name_pollution_xlsx.js",
     "phase2:integration-test": "node ./tests/test_phase2_phase15_integration.js",
-    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run metrics:test && npm run reliability:test && npm run reliability:contract-test && npm run metadata:test && npm run phase2:integration-test",
+    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run metrics:test && npm run reliability:test && npm run reliability:contract-test && npm run metadata:test && npm run background:test && npm run phase2:integration-test",
     "reliability:contract-test": "node ./tests/test_reliability_against_collectors.js"
   },
   "dependencies": {
