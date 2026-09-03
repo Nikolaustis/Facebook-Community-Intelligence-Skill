@@ -16,6 +16,37 @@ description: Two-stage Facebook game-group monitoring with resilient discovery, 
 6. Final uniqueness is `group_url + game_name`; only same-URL, same-game duplicates may be collapsed.
 7. Default to no shutdown. A shutdown may occur only when the current user instruction explicitly permits it and the run passes the shutdown verifier.
 
+## Reliability entrypoints
+
+Run Phase 1 and Phase 2 through the supported npm entrypoints or `npm run monitor`:
+
+```powershell
+npm run phase1 -- ...
+npm run phase2 -- ...
+npm run monitor -- ...
+```
+
+These entrypoints use `scripts/run_collector_reliable.js`. The compatibility layer is fail-closed: it only patches known, unique source markers in the current collectors and aborts if upstream code changes make a transformation unsafe.
+
+The reliability layer enforces the following additional runtime rules:
+
+- a missing/unparsed Phase 1 card member count is **inconclusive**, not equivalent to `<100`;
+- only a known card member count below 100 may be rejected before About-page validation;
+- Phase 1 and Phase 2 use the shared multilingual metrics parser for member/activity counts;
+- failed About/discussion fetches are not cached across another game that reaches the same group later in the run;
+- PowerShell orchestration must stop on a non-zero Phase 1 / Phase 1.5 / Phase 2 exit code;
+- direct `node scripts/phase1_collect_candidates.js` / `node scripts/phase2_collect_details.js` calls intentionally bypass these reliability patches and should not be the normal execution path.
+
+Before a first run on a new machine, use:
+
+```powershell
+npm ci
+npm run doctor
+npm run login
+npm run validate-login
+npm test
+```
+
 ## Phase 1 discovery rules
 
 Phase 1 is high-recall discovery. Do not discard a Facebook-returned group only because the visible card text does not contain the current query token.
@@ -125,3 +156,5 @@ The field order defined by the Phase 2 implementation is authoritative. `manual_
 - JavaScript JSON reads use `scripts/json_io.js`; PowerShell-generated JSON must be UTF-8 without BOM.
 - Do not depend on a global `CODEX_CLI_PATH` environment variable.
 - Shutdown requires the Node verifier and a current permitted shutdown policy.
+- Local machine credentials/config belong under `config/local/` or another ignored `*.local.json` path; never commit them.
+- Login validation must require positive authenticated-session evidence and must fail closed on checkpoint, recovery, temporary-block or unknown states.

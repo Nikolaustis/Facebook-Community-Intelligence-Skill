@@ -8,11 +8,21 @@ Clone or download the repository, open PowerShell in the repository root, and in
 npm ci
 ```
 
+Run the environment doctor before the first collection:
+
+```powershell
+npm run doctor
+```
+
+The doctor checks Node/dependencies, a supported Chrome/Edge installation, the dedicated browser-profile directory, local-config `.gitignore` protection, task-config JSON, and the CDP endpoint. A CDP warning is normal before the dedicated browser is started.
+
 Start the dedicated Chromium session:
 
 ```powershell
 npm run login
 ```
+
+`npm run login` now discovers Google Chrome or Microsoft Edge automatically. The default persistent profile is stored under `%LOCALAPPDATA%\FacebookGameGroupMonitor\browser-profile`. You can override it with `FBM_BROWSER_PROFILE`, and you can override the browser executable with `FBM_BROWSER_PATH` or the PowerShell `-BrowserPath` parameter.
 
 Log in to Facebook in that browser window, then verify the session:
 
@@ -20,12 +30,21 @@ Log in to Facebook in that browser window, then verify the session:
 npm run validate-login
 ```
 
+Login validation requires positive authenticated-session evidence (`c_user`) and rejects checkpoint, recovery, login, temporary-block and common interstitial states instead of treating any long Facebook page as logged in.
+
 Copy `assets/task_config.template.json` to a working configuration file and edit the games, aliases, sibling titles, regions, thresholds, and optional semantic/geocoder settings required for the run.
 
 Run the regression checks before the first collection:
 
 ```powershell
 npm test
+```
+
+Use the npm entrypoints or `npm run monitor` for Phase 1 / Phase 2. They apply the reliability compatibility layer that keeps the current collector logic intact while fixing metric parsing, unknown-card-size handling and transient-cache behavior.
+
+```powershell
+npm run phase1 -- --games "Game A,Game B" --out-dir ".\runs\example"
+npm run phase2 -- --index ".\runs\example\phase1_index.json" --config ".\task_config.json"
 ```
 
 ## Upgrading an existing installation
@@ -38,6 +57,7 @@ npm test
 ```text
 runs/
 node_modules/
+config/local/
 config/*.local.json
 ```
 
@@ -46,6 +66,14 @@ config/*.local.json
 ```powershell
 npm ci
 npm test
+npm run doctor
+```
+
+6. Start/reuse the dedicated browser and validate login:
+
+```powershell
+npm run login
+npm run validate-login
 ```
 
 ## Reusing existing run data
