@@ -40,6 +40,26 @@ function patchPhase1Source(source) {
     'phase1 metrics parser import',
   );
   patched = renameFunction(patched, 'parseMemberCount', 'parseMemberCountLegacy', 'phase1 legacy parser rename');
+
+  // V8.0.0 is the stable release baseline. The legacy collector source still contains
+  // historical 7.2.0 literals, so the verified runtime wrapper normalizes only the
+  // release metadata emitted by Phase 1 without changing collection behavior.
+  if (patched.includes("    version: '7.2.0',")) {
+    patched = replaceExactlyOnce(
+      patched,
+      "    version: '7.2.0',",
+      "    version: '8.0.0',",
+      'phase1 diagnostic release version',
+    );
+  }
+  if (patched.includes("      skill_version: '7.2.0',")) {
+    patched = replaceExactlyOnce(
+      patched,
+      "      skill_version: '7.2.0',",
+      "      skill_version: '8.0.0',",
+      'phase1 index release version',
+    );
+  }
   return patched;
 }
 

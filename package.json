@@ -1,6 +1,6 @@
 {
   "name": "fb-group-monitor-skill",
-  "version": "7.2.0",
+  "version": "8.0.0",
   "description": "Windows-oriented Facebook game-group monitor with resilient discovery, automatic offline name prefiltering, localized accessibility-label cleanup, page-level validation, durable checkpoints, and audited Excel export.",
   "private": true,
   "scripts": {
@@ -35,8 +35,9 @@
     "reliability:test": "node ./tests/test_collector_reliability_patcher.js",
     "repair-avatar-xlsx": "node scripts/repair_avatar_name_pollution_xlsx.js",
     "phase2:integration-test": "node ./tests/test_phase2_phase15_integration.js",
-    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run metrics:test && npm run reliability:test && npm run reliability:contract-test && npm run phase2:integration-test",
-    "reliability:contract-test": "node ./tests/test_reliability_against_collectors.js"
+    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run metrics:test && npm run reliability:test && npm run reliability:contract-test && npm run release-version:test && npm run phase2:integration-test",
+    "reliability:contract-test": "node ./tests/test_reliability_against_collectors.js",
+    "release-version:test": "node ./tests/test_v8_release_version.js"
   },
   "dependencies": {
     "playwright": "^1.59.1",
