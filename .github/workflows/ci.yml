@@ -30,6 +30,7 @@ jobs:
         run: |
           [scriptblock]::Create((Get-Content -Raw .\scripts\open_chrome_9222.ps1)) | Out-Null
           [scriptblock]::Create((Get-Content -Raw .\scripts\run_multi_games_reliable.ps1)) | Out-Null
+          [scriptblock]::Create((Get-Content -Raw .\scripts\start_background_task.ps1)) | Out-Null
           [scriptblock]::Create((Get-Content -Raw .\scripts\start_background_reliable.ps1)) | Out-Null
           [scriptblock]::Create((Get-Content -Raw .\scripts\scheduled_phase2_runner_reliable.ps1)) | Out-Null
           [scriptblock]::Create((Get-Content -Raw .\scripts\queue_phase2_after_current_reliable.ps1)) | Out-Null
