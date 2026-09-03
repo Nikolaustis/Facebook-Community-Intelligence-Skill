@@ -597,7 +597,6 @@ async function writePhase1Diagnostics(page, outDir, gameName, result) {
     return { url: location.href, title: document.title, body_text: bodyText, group_anchor_count: anchors.length, anchors };
   }).catch((error) => ({ error: String(error && error.message || error) }));
   fs.writeFileSync(`${base}.json`, JSON.stringify({
-    version: '7.2.0',
     generated_at: new Date().toISOString(),
     game_name: gameName,
     stop_reason: result.stop_reason || '',
@@ -661,7 +660,6 @@ async function writePhase1Diagnostics(page, outDir, gameName, result) {
     const index = {
       created_at: new Date().toISOString(),
       mode: 'phase1',
-      skill_version: '7.2.0',
       games: [],
       out_dir: outDir,
       config_file: args.config ? path.resolve(args.config) : '',
