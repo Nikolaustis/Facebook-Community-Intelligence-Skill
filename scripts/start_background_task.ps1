@@ -630,7 +630,7 @@ if ($Task -eq "login") {
   if ([string]::IsNullOrWhiteSpace($Games)) { throw "monitor requires -Games." }
   $cmd = New-Object System.Collections.Generic.List[string]
   $cmd.Add('&') | Out-Null
-  Add-QuotedArg $cmd (Join-Path $RootDir "scripts\run_multi_games_v2.ps1")
+  Add-QuotedArg $cmd (Join-Path $RootDir "scripts\run_multi_games_reliable.ps1")
   $cmd.Add('-Games') | Out-Null
   Add-QuotedArg $cmd $Games
   $cmd.Add('-Threshold') | Out-Null
