@@ -26,7 +26,7 @@ jobs:
       - run: node --check scripts/doctor.js
       - run: node --check scripts/validate_login_state.js
       - name: Parse PowerShell entrypoints
-        shell: powershell
+        shell: pwsh
         run: |
           [scriptblock]::Create((Get-Content -Raw .\scripts\open_chrome_9222.ps1)) | Out-Null
           [scriptblock]::Create((Get-Content -Raw .\scripts\run_multi_games_reliable.ps1)) | Out-Null
