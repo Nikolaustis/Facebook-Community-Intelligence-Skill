@@ -1,6 +1,6 @@
 {
   "name": "fb-group-monitor-skill",
-  "description": "Windows-oriented Facebook game-group monitor with resilient discovery, automatic offline name prefiltering, localized accessibility-label cleanup, page-level validation, durable checkpoints, and audited Excel export.",
+  "description": "Facebook Community Intelligence with Subject/Community/Match modeling, backward-compatible collection, evidence reuse, evaluation, and audited export.",
   "private": true,
   "scripts": {
     "login": "powershell -ExecutionPolicy Bypass -File .\\scripts\\open_chrome_9222.ps1",
@@ -36,8 +36,19 @@
     "background:test": "node ./tests/test_background_entrypoints.js",
     "repair-avatar-xlsx": "node scripts/repair_avatar_name_pollution_xlsx.js",
     "phase2:integration-test": "node ./tests/test_phase2_phase15_integration.js",
-    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run metrics:test && npm run reliability:test && npm run reliability:contract-test && npm run metadata:test && npm run background:test && npm run phase2:integration-test",
-    "reliability:contract-test": "node ./tests/test_reliability_against_collectors.js"
+    "reliability:contract-test": "node ./tests/test_reliability_against_collectors.js",
+    "subject:test": "node ./tests/test_subject_config.js",
+    "community:test": "node ./tests/test_community_store.js",
+    "match:test": "node ./tests/test_match_engine.js",
+    "source:test": "node ./tests/test_source_adapter.js",
+    "demo:test": "node ./tests/test_demo_datasets.js",
+    "benchmark:check": "node ./tests/test_benchmark_regression.js",
+    "benchmark": "node ./tools/benchmark.js",
+    "eval:ai": "node ./tools/ai_evaluation.js",
+    "demo": "node ./tools/run_demo.js",
+    "config:migrate": "node ./tools/migrate_games_config.js",
+    "intelligence": "node ./scripts/run_community_intelligence.js",
+    "test": "npm run phase1:test && npm run phase15:test && npm run group-name:test && npm run metrics:test && npm run reliability:test && npm run reliability:contract-test && npm run metadata:test && npm run background:test && npm run phase2:integration-test && npm run subject:test && npm run community:test && npm run match:test && npm run source:test && npm run demo:test && npm run benchmark:check"
   },
   "dependencies": {
     "playwright": "^1.59.1",

@@ -1,0 +1,3842 @@
+[
+  {
+    "case_id": "syn-01-canonical",
+    "subject": {
+      "subject_id": "game:subject-01",
+      "subject_name": "Subject 01",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S01"
+      ],
+      "ip_roots": [
+        "Subject 01"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 01 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 01 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-01-alias",
+    "subject": {
+      "subject_id": "game:subject-01",
+      "subject_name": "Subject 01",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S01"
+      ],
+      "ip_roots": [
+        "Subject 01"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 01 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S01 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-01-sibling",
+    "subject": {
+      "subject_id": "game:subject-01",
+      "subject_name": "Subject 01",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S01"
+      ],
+      "ip_roots": [
+        "Subject 01"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 01 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 01 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-02-canonical",
+    "subject": {
+      "subject_id": "brand:subject-02",
+      "subject_name": "Subject 02",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S02"
+      ],
+      "ip_roots": [
+        "Subject 02"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 02 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 02 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-02-alias",
+    "subject": {
+      "subject_id": "brand:subject-02",
+      "subject_name": "Subject 02",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S02"
+      ],
+      "ip_roots": [
+        "Subject 02"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 02 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S02 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-02-sibling",
+    "subject": {
+      "subject_id": "brand:subject-02",
+      "subject_name": "Subject 02",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S02"
+      ],
+      "ip_roots": [
+        "Subject 02"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 02 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 02 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-03-canonical",
+    "subject": {
+      "subject_id": "product:subject-03",
+      "subject_name": "Subject 03",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S03"
+      ],
+      "ip_roots": [
+        "Subject 03"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 03 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 03 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-03-alias",
+    "subject": {
+      "subject_id": "product:subject-03",
+      "subject_name": "Subject 03",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S03"
+      ],
+      "ip_roots": [
+        "Subject 03"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 03 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S03 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-03-sibling",
+    "subject": {
+      "subject_id": "product:subject-03",
+      "subject_name": "Subject 03",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S03"
+      ],
+      "ip_roots": [
+        "Subject 03"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 03 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 03 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-04-canonical",
+    "subject": {
+      "subject_id": "app:subject-04",
+      "subject_name": "Subject 04",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S04"
+      ],
+      "ip_roots": [
+        "Subject 04"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 04 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 04 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-04-alias",
+    "subject": {
+      "subject_id": "app:subject-04",
+      "subject_name": "Subject 04",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S04"
+      ],
+      "ip_roots": [
+        "Subject 04"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 04 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S04 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-04-sibling",
+    "subject": {
+      "subject_id": "app:subject-04",
+      "subject_name": "Subject 04",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S04"
+      ],
+      "ip_roots": [
+        "Subject 04"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 04 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 04 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-05-canonical",
+    "subject": {
+      "subject_id": "creator:subject-05",
+      "subject_name": "Subject 05",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S05"
+      ],
+      "ip_roots": [
+        "Subject 05"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 05 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 05 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-05-alias",
+    "subject": {
+      "subject_id": "creator:subject-05",
+      "subject_name": "Subject 05",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S05"
+      ],
+      "ip_roots": [
+        "Subject 05"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 05 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S05 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-05-sibling",
+    "subject": {
+      "subject_id": "creator:subject-05",
+      "subject_name": "Subject 05",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S05"
+      ],
+      "ip_roots": [
+        "Subject 05"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 05 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 05 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-06-canonical",
+    "subject": {
+      "subject_id": "company:subject-06",
+      "subject_name": "Subject 06",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S06"
+      ],
+      "ip_roots": [
+        "Subject 06"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 06 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 06 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-06-alias",
+    "subject": {
+      "subject_id": "company:subject-06",
+      "subject_name": "Subject 06",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S06"
+      ],
+      "ip_roots": [
+        "Subject 06"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 06 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S06 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-06-sibling",
+    "subject": {
+      "subject_id": "company:subject-06",
+      "subject_name": "Subject 06",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S06"
+      ],
+      "ip_roots": [
+        "Subject 06"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 06 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 06 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-07-canonical",
+    "subject": {
+      "subject_id": "topic:subject-07",
+      "subject_name": "Subject 07",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S07"
+      ],
+      "ip_roots": [
+        "Subject 07"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 07 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 07 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-07-alias",
+    "subject": {
+      "subject_id": "topic:subject-07",
+      "subject_name": "Subject 07",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S07"
+      ],
+      "ip_roots": [
+        "Subject 07"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 07 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S07 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-07-sibling",
+    "subject": {
+      "subject_id": "topic:subject-07",
+      "subject_name": "Subject 07",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S07"
+      ],
+      "ip_roots": [
+        "Subject 07"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 07 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 07 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-08-canonical",
+    "subject": {
+      "subject_id": "event:subject-08",
+      "subject_name": "Subject 08",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S08"
+      ],
+      "ip_roots": [
+        "Subject 08"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 08 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 08 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-08-alias",
+    "subject": {
+      "subject_id": "event:subject-08",
+      "subject_name": "Subject 08",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S08"
+      ],
+      "ip_roots": [
+        "Subject 08"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 08 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S08 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-08-sibling",
+    "subject": {
+      "subject_id": "event:subject-08",
+      "subject_name": "Subject 08",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S08"
+      ],
+      "ip_roots": [
+        "Subject 08"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 08 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 08 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-09-canonical",
+    "subject": {
+      "subject_id": "game:subject-09",
+      "subject_name": "Subject 09",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S09"
+      ],
+      "ip_roots": [
+        "Subject 09"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 09 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 09 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-09-alias",
+    "subject": {
+      "subject_id": "game:subject-09",
+      "subject_name": "Subject 09",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S09"
+      ],
+      "ip_roots": [
+        "Subject 09"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 09 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S09 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-09-sibling",
+    "subject": {
+      "subject_id": "game:subject-09",
+      "subject_name": "Subject 09",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S09"
+      ],
+      "ip_roots": [
+        "Subject 09"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 09 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 09 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-10-canonical",
+    "subject": {
+      "subject_id": "brand:subject-10",
+      "subject_name": "Subject 10",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S10"
+      ],
+      "ip_roots": [
+        "Subject 10"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 10 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 10 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-10-alias",
+    "subject": {
+      "subject_id": "brand:subject-10",
+      "subject_name": "Subject 10",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S10"
+      ],
+      "ip_roots": [
+        "Subject 10"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 10 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S10 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-10-sibling",
+    "subject": {
+      "subject_id": "brand:subject-10",
+      "subject_name": "Subject 10",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S10"
+      ],
+      "ip_roots": [
+        "Subject 10"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 10 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 10 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-11-canonical",
+    "subject": {
+      "subject_id": "product:subject-11",
+      "subject_name": "Subject 11",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S11"
+      ],
+      "ip_roots": [
+        "Subject 11"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 11 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 11 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-11-alias",
+    "subject": {
+      "subject_id": "product:subject-11",
+      "subject_name": "Subject 11",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S11"
+      ],
+      "ip_roots": [
+        "Subject 11"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 11 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S11 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-11-sibling",
+    "subject": {
+      "subject_id": "product:subject-11",
+      "subject_name": "Subject 11",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S11"
+      ],
+      "ip_roots": [
+        "Subject 11"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 11 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 11 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-12-canonical",
+    "subject": {
+      "subject_id": "app:subject-12",
+      "subject_name": "Subject 12",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S12"
+      ],
+      "ip_roots": [
+        "Subject 12"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 12 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 12 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-12-alias",
+    "subject": {
+      "subject_id": "app:subject-12",
+      "subject_name": "Subject 12",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S12"
+      ],
+      "ip_roots": [
+        "Subject 12"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 12 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S12 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-12-sibling",
+    "subject": {
+      "subject_id": "app:subject-12",
+      "subject_name": "Subject 12",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S12"
+      ],
+      "ip_roots": [
+        "Subject 12"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 12 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 12 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-13-canonical",
+    "subject": {
+      "subject_id": "creator:subject-13",
+      "subject_name": "Subject 13",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S13"
+      ],
+      "ip_roots": [
+        "Subject 13"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 13 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 13 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-13-alias",
+    "subject": {
+      "subject_id": "creator:subject-13",
+      "subject_name": "Subject 13",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S13"
+      ],
+      "ip_roots": [
+        "Subject 13"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 13 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S13 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-13-sibling",
+    "subject": {
+      "subject_id": "creator:subject-13",
+      "subject_name": "Subject 13",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S13"
+      ],
+      "ip_roots": [
+        "Subject 13"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 13 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 13 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-14-canonical",
+    "subject": {
+      "subject_id": "company:subject-14",
+      "subject_name": "Subject 14",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S14"
+      ],
+      "ip_roots": [
+        "Subject 14"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 14 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 14 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-14-alias",
+    "subject": {
+      "subject_id": "company:subject-14",
+      "subject_name": "Subject 14",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S14"
+      ],
+      "ip_roots": [
+        "Subject 14"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 14 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S14 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-14-sibling",
+    "subject": {
+      "subject_id": "company:subject-14",
+      "subject_name": "Subject 14",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S14"
+      ],
+      "ip_roots": [
+        "Subject 14"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 14 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 14 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-15-canonical",
+    "subject": {
+      "subject_id": "topic:subject-15",
+      "subject_name": "Subject 15",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S15"
+      ],
+      "ip_roots": [
+        "Subject 15"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 15 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 15 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-15-alias",
+    "subject": {
+      "subject_id": "topic:subject-15",
+      "subject_name": "Subject 15",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S15"
+      ],
+      "ip_roots": [
+        "Subject 15"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 15 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S15 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-15-sibling",
+    "subject": {
+      "subject_id": "topic:subject-15",
+      "subject_name": "Subject 15",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S15"
+      ],
+      "ip_roots": [
+        "Subject 15"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 15 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 15 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-16-canonical",
+    "subject": {
+      "subject_id": "event:subject-16",
+      "subject_name": "Subject 16",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S16"
+      ],
+      "ip_roots": [
+        "Subject 16"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 16 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 16 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-16-alias",
+    "subject": {
+      "subject_id": "event:subject-16",
+      "subject_name": "Subject 16",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S16"
+      ],
+      "ip_roots": [
+        "Subject 16"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 16 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S16 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-16-sibling",
+    "subject": {
+      "subject_id": "event:subject-16",
+      "subject_name": "Subject 16",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S16"
+      ],
+      "ip_roots": [
+        "Subject 16"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 16 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 16 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-17-canonical",
+    "subject": {
+      "subject_id": "game:subject-17",
+      "subject_name": "Subject 17",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S17"
+      ],
+      "ip_roots": [
+        "Subject 17"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 17 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 17 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-17-alias",
+    "subject": {
+      "subject_id": "game:subject-17",
+      "subject_name": "Subject 17",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S17"
+      ],
+      "ip_roots": [
+        "Subject 17"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 17 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S17 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-17-sibling",
+    "subject": {
+      "subject_id": "game:subject-17",
+      "subject_name": "Subject 17",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S17"
+      ],
+      "ip_roots": [
+        "Subject 17"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 17 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 17 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-18-canonical",
+    "subject": {
+      "subject_id": "brand:subject-18",
+      "subject_name": "Subject 18",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S18"
+      ],
+      "ip_roots": [
+        "Subject 18"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 18 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 18 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-18-alias",
+    "subject": {
+      "subject_id": "brand:subject-18",
+      "subject_name": "Subject 18",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S18"
+      ],
+      "ip_roots": [
+        "Subject 18"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 18 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S18 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-18-sibling",
+    "subject": {
+      "subject_id": "brand:subject-18",
+      "subject_name": "Subject 18",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S18"
+      ],
+      "ip_roots": [
+        "Subject 18"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 18 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 18 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-19-canonical",
+    "subject": {
+      "subject_id": "product:subject-19",
+      "subject_name": "Subject 19",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S19"
+      ],
+      "ip_roots": [
+        "Subject 19"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 19 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 19 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-19-alias",
+    "subject": {
+      "subject_id": "product:subject-19",
+      "subject_name": "Subject 19",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S19"
+      ],
+      "ip_roots": [
+        "Subject 19"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 19 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S19 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-19-sibling",
+    "subject": {
+      "subject_id": "product:subject-19",
+      "subject_name": "Subject 19",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S19"
+      ],
+      "ip_roots": [
+        "Subject 19"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 19 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 19 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-20-canonical",
+    "subject": {
+      "subject_id": "app:subject-20",
+      "subject_name": "Subject 20",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S20"
+      ],
+      "ip_roots": [
+        "Subject 20"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 20 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 20 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-20-alias",
+    "subject": {
+      "subject_id": "app:subject-20",
+      "subject_name": "Subject 20",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S20"
+      ],
+      "ip_roots": [
+        "Subject 20"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 20 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S20 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-20-sibling",
+    "subject": {
+      "subject_id": "app:subject-20",
+      "subject_name": "Subject 20",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S20"
+      ],
+      "ip_roots": [
+        "Subject 20"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 20 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 20 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-21-canonical",
+    "subject": {
+      "subject_id": "creator:subject-21",
+      "subject_name": "Subject 21",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S21"
+      ],
+      "ip_roots": [
+        "Subject 21"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 21 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 21 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-21-alias",
+    "subject": {
+      "subject_id": "creator:subject-21",
+      "subject_name": "Subject 21",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S21"
+      ],
+      "ip_roots": [
+        "Subject 21"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 21 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S21 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-21-sibling",
+    "subject": {
+      "subject_id": "creator:subject-21",
+      "subject_name": "Subject 21",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S21"
+      ],
+      "ip_roots": [
+        "Subject 21"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 21 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 21 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-22-canonical",
+    "subject": {
+      "subject_id": "company:subject-22",
+      "subject_name": "Subject 22",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S22"
+      ],
+      "ip_roots": [
+        "Subject 22"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 22 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 22 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-22-alias",
+    "subject": {
+      "subject_id": "company:subject-22",
+      "subject_name": "Subject 22",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S22"
+      ],
+      "ip_roots": [
+        "Subject 22"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 22 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S22 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-22-sibling",
+    "subject": {
+      "subject_id": "company:subject-22",
+      "subject_name": "Subject 22",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S22"
+      ],
+      "ip_roots": [
+        "Subject 22"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 22 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 22 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-23-canonical",
+    "subject": {
+      "subject_id": "topic:subject-23",
+      "subject_name": "Subject 23",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S23"
+      ],
+      "ip_roots": [
+        "Subject 23"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 23 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 23 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-23-alias",
+    "subject": {
+      "subject_id": "topic:subject-23",
+      "subject_name": "Subject 23",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S23"
+      ],
+      "ip_roots": [
+        "Subject 23"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 23 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S23 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-23-sibling",
+    "subject": {
+      "subject_id": "topic:subject-23",
+      "subject_name": "Subject 23",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S23"
+      ],
+      "ip_roots": [
+        "Subject 23"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 23 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 23 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-24-canonical",
+    "subject": {
+      "subject_id": "event:subject-24",
+      "subject_name": "Subject 24",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S24"
+      ],
+      "ip_roots": [
+        "Subject 24"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 24 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 24 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-24-alias",
+    "subject": {
+      "subject_id": "event:subject-24",
+      "subject_name": "Subject 24",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S24"
+      ],
+      "ip_roots": [
+        "Subject 24"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 24 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S24 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-24-sibling",
+    "subject": {
+      "subject_id": "event:subject-24",
+      "subject_name": "Subject 24",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S24"
+      ],
+      "ip_roots": [
+        "Subject 24"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 24 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 24 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-25-canonical",
+    "subject": {
+      "subject_id": "game:subject-25",
+      "subject_name": "Subject 25",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S25"
+      ],
+      "ip_roots": [
+        "Subject 25"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 25 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 25 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-25-alias",
+    "subject": {
+      "subject_id": "game:subject-25",
+      "subject_name": "Subject 25",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S25"
+      ],
+      "ip_roots": [
+        "Subject 25"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 25 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S25 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-25-sibling",
+    "subject": {
+      "subject_id": "game:subject-25",
+      "subject_name": "Subject 25",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S25"
+      ],
+      "ip_roots": [
+        "Subject 25"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 25 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 25 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-26-canonical",
+    "subject": {
+      "subject_id": "brand:subject-26",
+      "subject_name": "Subject 26",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S26"
+      ],
+      "ip_roots": [
+        "Subject 26"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 26 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 26 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-26-alias",
+    "subject": {
+      "subject_id": "brand:subject-26",
+      "subject_name": "Subject 26",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S26"
+      ],
+      "ip_roots": [
+        "Subject 26"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 26 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S26 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-26-sibling",
+    "subject": {
+      "subject_id": "brand:subject-26",
+      "subject_name": "Subject 26",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S26"
+      ],
+      "ip_roots": [
+        "Subject 26"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 26 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 26 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-27-canonical",
+    "subject": {
+      "subject_id": "product:subject-27",
+      "subject_name": "Subject 27",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S27"
+      ],
+      "ip_roots": [
+        "Subject 27"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 27 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 27 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-27-alias",
+    "subject": {
+      "subject_id": "product:subject-27",
+      "subject_name": "Subject 27",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S27"
+      ],
+      "ip_roots": [
+        "Subject 27"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 27 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S27 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-27-sibling",
+    "subject": {
+      "subject_id": "product:subject-27",
+      "subject_name": "Subject 27",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S27"
+      ],
+      "ip_roots": [
+        "Subject 27"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 27 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 27 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-28-canonical",
+    "subject": {
+      "subject_id": "app:subject-28",
+      "subject_name": "Subject 28",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S28"
+      ],
+      "ip_roots": [
+        "Subject 28"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 28 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 28 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-28-alias",
+    "subject": {
+      "subject_id": "app:subject-28",
+      "subject_name": "Subject 28",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S28"
+      ],
+      "ip_roots": [
+        "Subject 28"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 28 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S28 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-28-sibling",
+    "subject": {
+      "subject_id": "app:subject-28",
+      "subject_name": "Subject 28",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S28"
+      ],
+      "ip_roots": [
+        "Subject 28"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 28 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 28 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-29-canonical",
+    "subject": {
+      "subject_id": "creator:subject-29",
+      "subject_name": "Subject 29",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S29"
+      ],
+      "ip_roots": [
+        "Subject 29"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 29 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 29 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-29-alias",
+    "subject": {
+      "subject_id": "creator:subject-29",
+      "subject_name": "Subject 29",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S29"
+      ],
+      "ip_roots": [
+        "Subject 29"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 29 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S29 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-29-sibling",
+    "subject": {
+      "subject_id": "creator:subject-29",
+      "subject_name": "Subject 29",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S29"
+      ],
+      "ip_roots": [
+        "Subject 29"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 29 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 29 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-30-canonical",
+    "subject": {
+      "subject_id": "company:subject-30",
+      "subject_name": "Subject 30",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S30"
+      ],
+      "ip_roots": [
+        "Subject 30"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 30 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 30 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-30-alias",
+    "subject": {
+      "subject_id": "company:subject-30",
+      "subject_name": "Subject 30",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S30"
+      ],
+      "ip_roots": [
+        "Subject 30"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 30 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S30 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-30-sibling",
+    "subject": {
+      "subject_id": "company:subject-30",
+      "subject_name": "Subject 30",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S30"
+      ],
+      "ip_roots": [
+        "Subject 30"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 30 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 30 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-31-canonical",
+    "subject": {
+      "subject_id": "topic:subject-31",
+      "subject_name": "Subject 31",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S31"
+      ],
+      "ip_roots": [
+        "Subject 31"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 31 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 31 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-31-alias",
+    "subject": {
+      "subject_id": "topic:subject-31",
+      "subject_name": "Subject 31",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S31"
+      ],
+      "ip_roots": [
+        "Subject 31"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 31 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S31 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-31-sibling",
+    "subject": {
+      "subject_id": "topic:subject-31",
+      "subject_name": "Subject 31",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S31"
+      ],
+      "ip_roots": [
+        "Subject 31"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 31 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 31 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-32-canonical",
+    "subject": {
+      "subject_id": "event:subject-32",
+      "subject_name": "Subject 32",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S32"
+      ],
+      "ip_roots": [
+        "Subject 32"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 32 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 32 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-32-alias",
+    "subject": {
+      "subject_id": "event:subject-32",
+      "subject_name": "Subject 32",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S32"
+      ],
+      "ip_roots": [
+        "Subject 32"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 32 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S32 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-32-sibling",
+    "subject": {
+      "subject_id": "event:subject-32",
+      "subject_name": "Subject 32",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S32"
+      ],
+      "ip_roots": [
+        "Subject 32"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 32 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 32 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-33-canonical",
+    "subject": {
+      "subject_id": "game:subject-33",
+      "subject_name": "Subject 33",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S33"
+      ],
+      "ip_roots": [
+        "Subject 33"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 33 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 33 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-33-alias",
+    "subject": {
+      "subject_id": "game:subject-33",
+      "subject_name": "Subject 33",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S33"
+      ],
+      "ip_roots": [
+        "Subject 33"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 33 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S33 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-33-sibling",
+    "subject": {
+      "subject_id": "game:subject-33",
+      "subject_name": "Subject 33",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "S33"
+      ],
+      "ip_roots": [
+        "Subject 33"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 33 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 33 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-34-canonical",
+    "subject": {
+      "subject_id": "brand:subject-34",
+      "subject_name": "Subject 34",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S34"
+      ],
+      "ip_roots": [
+        "Subject 34"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 34 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 34 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-34-alias",
+    "subject": {
+      "subject_id": "brand:subject-34",
+      "subject_name": "Subject 34",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S34"
+      ],
+      "ip_roots": [
+        "Subject 34"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 34 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S34 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-34-sibling",
+    "subject": {
+      "subject_id": "brand:subject-34",
+      "subject_name": "Subject 34",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "S34"
+      ],
+      "ip_roots": [
+        "Subject 34"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 34 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 34 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-35-canonical",
+    "subject": {
+      "subject_id": "product:subject-35",
+      "subject_name": "Subject 35",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S35"
+      ],
+      "ip_roots": [
+        "Subject 35"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 35 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 35 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-35-alias",
+    "subject": {
+      "subject_id": "product:subject-35",
+      "subject_name": "Subject 35",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S35"
+      ],
+      "ip_roots": [
+        "Subject 35"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 35 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S35 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-35-sibling",
+    "subject": {
+      "subject_id": "product:subject-35",
+      "subject_name": "Subject 35",
+      "subject_type": "product",
+      "parent_subject": null,
+      "aliases": [
+        "S35"
+      ],
+      "ip_roots": [
+        "Subject 35"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 35 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 35 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-36-canonical",
+    "subject": {
+      "subject_id": "app:subject-36",
+      "subject_name": "Subject 36",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S36"
+      ],
+      "ip_roots": [
+        "Subject 36"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 36 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 36 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-36-alias",
+    "subject": {
+      "subject_id": "app:subject-36",
+      "subject_name": "Subject 36",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S36"
+      ],
+      "ip_roots": [
+        "Subject 36"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 36 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S36 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-36-sibling",
+    "subject": {
+      "subject_id": "app:subject-36",
+      "subject_name": "Subject 36",
+      "subject_type": "app",
+      "parent_subject": null,
+      "aliases": [
+        "S36"
+      ],
+      "ip_roots": [
+        "Subject 36"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 36 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 36 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-37-canonical",
+    "subject": {
+      "subject_id": "creator:subject-37",
+      "subject_name": "Subject 37",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S37"
+      ],
+      "ip_roots": [
+        "Subject 37"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 37 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 37 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-37-alias",
+    "subject": {
+      "subject_id": "creator:subject-37",
+      "subject_name": "Subject 37",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S37"
+      ],
+      "ip_roots": [
+        "Subject 37"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 37 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S37 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-37-sibling",
+    "subject": {
+      "subject_id": "creator:subject-37",
+      "subject_name": "Subject 37",
+      "subject_type": "creator",
+      "parent_subject": null,
+      "aliases": [
+        "S37"
+      ],
+      "ip_roots": [
+        "Subject 37"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 37 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 37 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-38-canonical",
+    "subject": {
+      "subject_id": "company:subject-38",
+      "subject_name": "Subject 38",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S38"
+      ],
+      "ip_roots": [
+        "Subject 38"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 38 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 38 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-38-alias",
+    "subject": {
+      "subject_id": "company:subject-38",
+      "subject_name": "Subject 38",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S38"
+      ],
+      "ip_roots": [
+        "Subject 38"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 38 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S38 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-38-sibling",
+    "subject": {
+      "subject_id": "company:subject-38",
+      "subject_name": "Subject 38",
+      "subject_type": "company",
+      "parent_subject": null,
+      "aliases": [
+        "S38"
+      ],
+      "ip_roots": [
+        "Subject 38"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 38 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 38 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-39-canonical",
+    "subject": {
+      "subject_id": "topic:subject-39",
+      "subject_name": "Subject 39",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S39"
+      ],
+      "ip_roots": [
+        "Subject 39"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 39 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 39 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-39-alias",
+    "subject": {
+      "subject_id": "topic:subject-39",
+      "subject_name": "Subject 39",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S39"
+      ],
+      "ip_roots": [
+        "Subject 39"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 39 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S39 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-39-sibling",
+    "subject": {
+      "subject_id": "topic:subject-39",
+      "subject_name": "Subject 39",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [
+        "S39"
+      ],
+      "ip_roots": [
+        "Subject 39"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 39 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 39 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  },
+  {
+    "case_id": "syn-40-canonical",
+    "subject": {
+      "subject_id": "event:subject-40",
+      "subject_name": "Subject 40",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S40"
+      ],
+      "ip_roots": [
+        "Subject 40"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 40 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 40 Official Community 中文讨论区",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-40-alias",
+    "subject": {
+      "subject_id": "event:subject-40",
+      "subject_name": "Subject 40",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S40"
+      ],
+      "ip_roots": [
+        "Subject 40"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 40 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "S40 Fans Thailand",
+      "source_queries": []
+    },
+    "expected_status": "accepted"
+  },
+  {
+    "case_id": "syn-40-sibling",
+    "subject": {
+      "subject_id": "event:subject-40",
+      "subject_name": "Subject 40",
+      "subject_type": "event",
+      "parent_subject": null,
+      "aliases": [
+        "S40"
+      ],
+      "ip_roots": [
+        "Subject 40"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Subject 40 Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Subject 40 Pro Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected"
+  }
+]

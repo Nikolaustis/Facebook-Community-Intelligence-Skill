@@ -1,0 +1,29 @@
+[
+  {
+    "group_url": "https://www.facebook.com/groups/demo.phone.1",
+    "group_name": "Acme Phone Users",
+    "game_name": "Acme Phone",
+    "members": 22000,
+    "posts_today": 31,
+    "language": "English",
+    "region": "North America"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/demo.phone.2",
+    "group_name": "APhone Vietnam Community",
+    "game_name": "Acme Phone",
+    "members": 17000,
+    "posts_today": 26,
+    "language": "Vietnamese",
+    "region": "VN"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/demo.phone.3",
+    "group_name": "Acme Phone Lite Owners",
+    "game_name": "Acme Phone",
+    "members": 9000,
+    "posts_today": 17,
+    "language": "English",
+    "region": "SEA"
+  }
+]

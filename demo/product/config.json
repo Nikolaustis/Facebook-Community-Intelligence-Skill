@@ -1,0 +1,32 @@
+{
+  "subjects": [
+    {
+      "name": "Acme Phone",
+      "type": "product",
+      "parent_subject": "Acme",
+      "aliases": [
+        "APhone"
+      ],
+      "ip_roots": [
+        "Acme"
+      ],
+      "relationships": {
+        "related": [
+          "Acme"
+        ],
+        "mutually_exclusive": [
+          "Acme Phone Lite"
+        ],
+        "children": [],
+        "parents": [
+          "Acme"
+        ]
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    }
+  ],
+  "threshold": 10
+}

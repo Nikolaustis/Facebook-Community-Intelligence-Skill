@@ -1,0 +1,27 @@
+{
+  "subjects": [
+    {
+      "name": "Acme",
+      "type": "brand",
+      "aliases": [
+        "Acme Brand"
+      ],
+      "ip_roots": [],
+      "relationships": {
+        "related": [
+          "Acme Phone"
+        ],
+        "mutually_exclusive": [],
+        "children": [
+          "Acme Phone"
+        ],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    }
+  ],
+  "threshold": 10
+}

@@ -1,0 +1,302 @@
+[
+  {
+    "case_id": "ai-001",
+    "input_text": "Bangkok Thailand creators",
+    "gold_label": "TH"
+  },
+  {
+    "case_id": "ai-002",
+    "input_text": "Thai community",
+    "gold_label": "TH"
+  },
+  {
+    "case_id": "ai-003",
+    "input_text": "Thailand users",
+    "gold_label": "TH"
+  },
+  {
+    "case_id": "ai-004",
+    "input_text": "Bangkok group",
+    "gold_label": "TH"
+  },
+  {
+    "case_id": "ai-005",
+    "input_text": "Thai market",
+    "gold_label": "TH"
+  },
+  {
+    "case_id": "ai-006",
+    "input_text": "Thailand discussion",
+    "gold_label": "TH"
+  },
+  {
+    "case_id": "ai-007",
+    "input_text": "Ho Chi Minh Vietnam users",
+    "gold_label": "VN"
+  },
+  {
+    "case_id": "ai-008",
+    "input_text": "Hanoi Viet Nam community",
+    "gold_label": "VN"
+  },
+  {
+    "case_id": "ai-009",
+    "input_text": "Vietnam discussion",
+    "gold_label": "VN"
+  },
+  {
+    "case_id": "ai-010",
+    "input_text": "Saigon creators",
+    "gold_label": "VN"
+  },
+  {
+    "case_id": "ai-011",
+    "input_text": "Vietnam market",
+    "gold_label": "VN"
+  },
+  {
+    "case_id": "ai-012",
+    "input_text": "Hanoi group",
+    "gold_label": "VN"
+  },
+  {
+    "case_id": "ai-013",
+    "input_text": "Jakarta Indonesia users",
+    "gold_label": "ID"
+  },
+  {
+    "case_id": "ai-014",
+    "input_text": "Indonesia community",
+    "gold_label": "ID"
+  },
+  {
+    "case_id": "ai-015",
+    "input_text": "Jakarta creators",
+    "gold_label": "ID"
+  },
+  {
+    "case_id": "ai-016",
+    "input_text": "Indonesia market",
+    "gold_label": "ID"
+  },
+  {
+    "case_id": "ai-017",
+    "input_text": "Indonesia discussion",
+    "gold_label": "ID"
+  },
+  {
+    "case_id": "ai-018",
+    "input_text": "Jakarta group",
+    "gold_label": "ID"
+  },
+  {
+    "case_id": "ai-019",
+    "input_text": "Manila Philippines users",
+    "gold_label": "PH"
+  },
+  {
+    "case_id": "ai-020",
+    "input_text": "Philippines community",
+    "gold_label": "PH"
+  },
+  {
+    "case_id": "ai-021",
+    "input_text": "Cebu creators",
+    "gold_label": "PH"
+  },
+  {
+    "case_id": "ai-022",
+    "input_text": "Philippines market",
+    "gold_label": "PH"
+  },
+  {
+    "case_id": "ai-023",
+    "input_text": "Manila discussion",
+    "gold_label": "PH"
+  },
+  {
+    "case_id": "ai-024",
+    "input_text": "Cebu group",
+    "gold_label": "PH"
+  },
+  {
+    "case_id": "ai-025",
+    "input_text": "Kuala Lumpur Malaysia users",
+    "gold_label": "MY"
+  },
+  {
+    "case_id": "ai-026",
+    "input_text": "Malaysia community",
+    "gold_label": "MY"
+  },
+  {
+    "case_id": "ai-027",
+    "input_text": "Malaysia creators",
+    "gold_label": "MY"
+  },
+  {
+    "case_id": "ai-028",
+    "input_text": "Kuala Lumpur market",
+    "gold_label": "MY"
+  },
+  {
+    "case_id": "ai-029",
+    "input_text": "Malaysia discussion",
+    "gold_label": "MY"
+  },
+  {
+    "case_id": "ai-030",
+    "input_text": "Malaysia group",
+    "gold_label": "MY"
+  },
+  {
+    "case_id": "ai-031",
+    "input_text": "Tokyo Japan users",
+    "gold_label": "JP"
+  },
+  {
+    "case_id": "ai-032",
+    "input_text": "Japan community",
+    "gold_label": "JP"
+  },
+  {
+    "case_id": "ai-033",
+    "input_text": "Osaka creators",
+    "gold_label": "JP"
+  },
+  {
+    "case_id": "ai-034",
+    "input_text": "Japan market",
+    "gold_label": "JP"
+  },
+  {
+    "case_id": "ai-035",
+    "input_text": "Tokyo discussion",
+    "gold_label": "JP"
+  },
+  {
+    "case_id": "ai-036",
+    "input_text": "Japan group",
+    "gold_label": "JP"
+  },
+  {
+    "case_id": "ai-037",
+    "input_text": "Seoul South Korea users",
+    "gold_label": "KR"
+  },
+  {
+    "case_id": "ai-038",
+    "input_text": "South Korea community",
+    "gold_label": "KR"
+  },
+  {
+    "case_id": "ai-039",
+    "input_text": "Busan creators",
+    "gold_label": "KR"
+  },
+  {
+    "case_id": "ai-040",
+    "input_text": "South Korea market",
+    "gold_label": "KR"
+  },
+  {
+    "case_id": "ai-041",
+    "input_text": "Seoul discussion",
+    "gold_label": "KR"
+  },
+  {
+    "case_id": "ai-042",
+    "input_text": "South Korea group",
+    "gold_label": "KR"
+  },
+  {
+    "case_id": "ai-043",
+    "input_text": "Sao Paulo Brazil users",
+    "gold_label": "BR"
+  },
+  {
+    "case_id": "ai-044",
+    "input_text": "Brasil community",
+    "gold_label": "BR"
+  },
+  {
+    "case_id": "ai-045",
+    "input_text": "Rio de Janeiro creators",
+    "gold_label": "BR"
+  },
+  {
+    "case_id": "ai-046",
+    "input_text": "Brazil market",
+    "gold_label": "BR"
+  },
+  {
+    "case_id": "ai-047",
+    "input_text": "Brasil discussion",
+    "gold_label": "BR"
+  },
+  {
+    "case_id": "ai-048",
+    "input_text": "Brazil group",
+    "gold_label": "BR"
+  },
+  {
+    "case_id": "ai-049",
+    "input_text": "Mexico community",
+    "gold_label": "LATAM"
+  },
+  {
+    "case_id": "ai-050",
+    "input_text": "Argentina creators",
+    "gold_label": "LATAM"
+  },
+  {
+    "case_id": "ai-051",
+    "input_text": "Chile market",
+    "gold_label": "LATAM"
+  },
+  {
+    "case_id": "ai-052",
+    "input_text": "Colombia discussion",
+    "gold_label": "LATAM"
+  },
+  {
+    "case_id": "ai-053",
+    "input_text": "Peru users",
+    "gold_label": "LATAM"
+  },
+  {
+    "case_id": "ai-054",
+    "input_text": "LATAM group",
+    "gold_label": "LATAM"
+  },
+  {
+    "case_id": "ai-055",
+    "input_text": "Europe community",
+    "gold_label": "EUR"
+  },
+  {
+    "case_id": "ai-056",
+    "input_text": "Spain creators",
+    "gold_label": "EUR"
+  },
+  {
+    "case_id": "ai-057",
+    "input_text": "Portugal market",
+    "gold_label": "EUR"
+  },
+  {
+    "case_id": "ai-058",
+    "input_text": "Sweden discussion",
+    "gold_label": "EUR"
+  },
+  {
+    "case_id": "ai-059",
+    "input_text": "Norway users",
+    "gold_label": "EUR"
+  },
+  {
+    "case_id": "ai-060",
+    "input_text": "Finland group",
+    "gold_label": "EUR"
+  }
+]

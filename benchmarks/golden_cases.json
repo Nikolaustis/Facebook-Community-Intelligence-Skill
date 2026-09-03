@@ -1,0 +1,241 @@
+[
+  {
+    "case_id": "mixed-script-canonical",
+    "subject": {
+      "subject_id": "game:sailor-piece",
+      "subject_name": "Sailor Piece",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [],
+      "ip_roots": [
+        "Sailor"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Sailor Pieces"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Sailor Piece水手寶石中文交易討論區",
+      "source_queries": []
+    },
+    "expected_status": "accepted",
+    "expected_match_type": "canonical"
+  },
+  {
+    "case_id": "latin-continuation-block",
+    "subject": {
+      "subject_id": "game:sailor-piece",
+      "subject_name": "Sailor Piece",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [],
+      "ip_roots": [],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Sailor Pieces",
+      "source_queries": []
+    },
+    "expected_status": "rejected",
+    "expected_match_type": "no_match"
+  },
+  {
+    "case_id": "short-alias-mixed-script",
+    "subject": {
+      "subject_id": "game:gag",
+      "subject_name": "Grow a Garden",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "GAG"
+      ],
+      "ip_roots": [],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "GAG中文交易群",
+      "source_queries": []
+    },
+    "expected_status": "accepted",
+    "expected_match_type": "alias"
+  },
+  {
+    "case_id": "short-alias-number-continuation",
+    "subject": {
+      "subject_id": "game:gag",
+      "subject_name": "Grow a Garden",
+      "subject_type": "game",
+      "parent_subject": null,
+      "aliases": [
+        "GAG"
+      ],
+      "ip_roots": [],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "GAG2 Trading",
+      "source_queries": []
+    },
+    "expected_status": "rejected",
+    "expected_match_type": "no_match"
+  },
+  {
+    "case_id": "specific-sibling-block",
+    "subject": {
+      "subject_id": "custom:alpha",
+      "subject_name": "Alpha",
+      "subject_type": "custom",
+      "parent_subject": null,
+      "aliases": [],
+      "ip_roots": [
+        "Alpha"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Alpha Pro"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Alpha Pro Global Community",
+      "source_queries": []
+    },
+    "expected_status": "rejected",
+    "expected_match_type": "mutually_exclusive"
+  },
+  {
+    "case_id": "brand",
+    "subject": {
+      "subject_id": "brand:acme",
+      "subject_name": "Acme",
+      "subject_type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "Acme Brand"
+      ],
+      "ip_roots": [],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Acme Brand Owners Club",
+      "source_queries": []
+    },
+    "expected_status": "accepted",
+    "expected_match_type": "canonical"
+  },
+  {
+    "case_id": "product",
+    "subject": {
+      "subject_id": "product:acme-phone",
+      "subject_name": "Acme Phone",
+      "subject_type": "product",
+      "parent_subject": "Acme",
+      "aliases": [
+        "APhone"
+      ],
+      "ip_roots": [
+        "Acme"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "Acme Phone Lite"
+        ],
+        "children": [],
+        "parents": [
+          "Acme"
+        ]
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "APhone Users Vietnam",
+      "source_queries": []
+    },
+    "expected_status": "accepted",
+    "expected_match_type": "alias"
+  },
+  {
+    "case_id": "seed",
+    "subject": {
+      "subject_id": "topic:ai",
+      "subject_name": "AI Safety",
+      "subject_type": "topic",
+      "parent_subject": null,
+      "aliases": [],
+      "ip_roots": [],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [],
+        "seed_group_urls": []
+      }
+    },
+    "input": {
+      "community_name": "Research Community",
+      "source_queries": [],
+      "is_seed": true
+    },
+    "expected_status": "accepted",
+    "expected_match_type": "seed"
+  }
+]

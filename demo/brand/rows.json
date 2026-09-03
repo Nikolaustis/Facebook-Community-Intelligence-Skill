@@ -1,0 +1,29 @@
+[
+  {
+    "group_url": "https://www.facebook.com/groups/demo.acme.1",
+    "group_name": "Acme Owners Community",
+    "game_name": "Acme",
+    "members": 32000,
+    "posts_today": 55,
+    "language": "English",
+    "region": "North America"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/demo.acme.2",
+    "group_name": "Acme Brand Fans Vietnam",
+    "game_name": "Acme",
+    "members": 15000,
+    "posts_today": 20,
+    "language": "Vietnamese",
+    "region": "VN"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/demo.acme.3",
+    "group_name": "Unrelated Gadget Fans",
+    "game_name": "Acme",
+    "members": 7000,
+    "posts_today": 8,
+    "language": "English",
+    "region": "EUR"
+  }
+]

@@ -1,5 +1,5 @@
 interface:
-  display_name: Facebook Group Monitor
-  short_description: Facebook game-group monitor with offline name prefiltering and audited Excel export
+  display_name: Facebook Community Intelligence
+  short_description: Subject-centric Facebook Group intelligence with Community/Match normalization, reliable collection, evaluation, and audited export
   default_prompt: >-
-    按当前 Facebook Group Monitor 流程运行 Facebook 游戏群组监测。第一轮保持高召回，按规范化群组 URL 聚合结果，并记录检索词与群名来源；如果页面有搜索结果但解析为零，必须使用备用 Groups 搜索路由并保存诊断证据。第二轮打开任何 Facebook About 或讨论页前，必须自动完成或复用 Phase 1.5 全量群名预筛，只使用过滤后的候选队列。群名在匹配、语言判断、地区判断、checkpoint 和 XLSX 输出前都要清除“的头像”、profile picture 等本地化无障碍标签；有效 About 标题优先于较弱的 aria-label。短拉丁别名必须使用安全词边界，拉丁标题可以直接连接中文、泰文等非拉丁文字，兄弟游戏的更具体标题不得被较短标题误收。最终唯一键为 group_url + game_name；每个候选完成后写完整 checkpoint。默认任务完成后不关机，只有当前用户明确要求时才生成并验证关机策略。
+    使用 Facebook Community Intelligence 流程。优先采用 Subject / Community / Match 数据模型：Subject 可以是游戏、品牌、产品、应用、创作者、公司、主题、事件、竞品或自定义对象；Facebook Group 作为唯一 Community 实体，按规范化 URL 去重，Community 证据与 Subject 匹配关系分离。使用 subjects 配置与 intelligence 入口；旧 games 配置仅作为兼容输入自动迁移。Facebook 采集仍遵循可靠的 Phase 1 → Phase 1.5 → Phase 2 流程，最终输出 communities、subjects、matches、evidence、XLSX 与 run manifest。不要把 synthetic benchmark 结果描述为生产准确率，也不要声称已支持 Facebook Groups 以外的数据源。

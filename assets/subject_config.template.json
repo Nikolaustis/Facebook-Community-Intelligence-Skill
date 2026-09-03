@@ -1,0 +1,46 @@
+{
+  "subjects": [
+    {
+      "subject_id": "brand:example",
+      "name": "Example Brand",
+      "type": "brand",
+      "parent_subject": null,
+      "aliases": [
+        "Example"
+      ],
+      "ip_roots": [],
+      "relationships": {
+        "related": [
+          "Example Product"
+        ],
+        "mutually_exclusive": [],
+        "children": [
+          "Example Product"
+        ],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [
+          {
+            "query": "Example Brand Community",
+            "type": "community"
+          }
+        ],
+        "seed_group_urls": []
+      }
+    }
+  ],
+  "threshold": 10,
+  "phase2_auto_resume": true,
+  "phase15_name_prefilter": {
+    "enabled": true,
+    "reuse_cache": true,
+    "keep_missing_or_truncated_names": true,
+    "use_source_queries": true,
+    "write_rejected_candidates": true,
+    "write_review_candidates": true
+  },
+  "cdp_url": "http://127.0.0.1:9222",
+  "close_chrome_after_report": true,
+  "shutdown_after_complete": false
+}

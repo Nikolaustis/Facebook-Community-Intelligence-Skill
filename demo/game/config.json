@@ -1,0 +1,32 @@
+{
+  "subjects": [
+    {
+      "name": "All Star Tower Defense",
+      "type": "game",
+      "aliases": [
+        "ASTD"
+      ],
+      "ip_roots": [
+        "All Star"
+      ],
+      "relationships": {
+        "related": [],
+        "mutually_exclusive": [
+          "All Star X Tower Defense"
+        ],
+        "children": [],
+        "parents": []
+      },
+      "discovery": {
+        "search_variants": [
+          {
+            "query": "All Star Tower Defense",
+            "type": "canonical"
+          }
+        ],
+        "seed_group_urls": []
+      }
+    }
+  ],
+  "threshold": 10
+}
